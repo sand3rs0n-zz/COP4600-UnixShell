@@ -39,17 +39,23 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     NUMBER = 258,
-     HELLO = 259,
-     BYE = 260,
-     STATE = 261
+     SETENV = 258,
+     PRINTENV = 259,
+     UNSETENV = 260,
+     CD = 261,
+     ALIAS = 262,
+     UNALIAS = 263,
+     BYE = 264
    };
 #endif
 /* Tokens.  */
-#define NUMBER 258
-#define HELLO 259
-#define BYE 260
-#define STATE 261
+#define SETENV 258
+#define PRINTENV 259
+#define UNSETENV 260
+#define CD 261
+#define ALIAS 262
+#define UNALIAS 263
+#define BYE 264
 
 
 

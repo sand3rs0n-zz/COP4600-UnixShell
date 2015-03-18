@@ -66,23 +66,29 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     NUMBER = 258,
-     HELLO = 259,
-     BYE = 260,
-     STATE = 261
+     SETENV = 258,
+     PRINTENV = 259,
+     UNSETENV = 260,
+     CD = 261,
+     ALIAS = 262,
+     UNALIAS = 263,
+     BYE = 264
    };
 #endif
 /* Tokens.  */
-#define NUMBER 258
-#define HELLO 259
-#define BYE 260
-#define STATE 261
+#define SETENV 258
+#define PRINTENV 259
+#define UNSETENV 260
+#define CD 261
+#define ALIAS 262
+#define UNALIAS 263
+#define BYE 264
 
 
 
 
 /* Copy the first part of user declarations.  */
-#line 1 "hello.y"
+#line 1 "shell.y"
 #include <stdio.h>
 #include <string.h>
 
@@ -122,7 +128,7 @@ typedef int YYSTYPE;
 
 
 /* Line 216 of yacc.c.  */
-#line 126 "y.tab.c"
+#line 132 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -337,20 +343,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   6
+#define YYLAST   9
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  7
+#define YYNTOKENS  10
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  6
+#define YYNNTS  10
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  9
+#define YYNRULES  17
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  11
+#define YYNSTATES  18
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   261
+#define YYMAXUTOK   264
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -384,7 +390,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6
+       5,     6,     7,     8,     9
 };
 
 #if YYDEBUG
@@ -392,20 +398,24 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     4,     7,     9,    11,    13,    15,    17
+       0,     0,     3,     4,     7,     9,    11,    13,    15,    17,
+      19,    21,    23,    25,    27,    29,    31,    33
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-       8,     0,    -1,    -1,     8,     9,    -1,    10,    -1,    11,
-      -1,    12,    -1,     4,    -1,     5,    -1,     6,     3,    -1
+      11,     0,    -1,    -1,    11,    12,    -1,    13,    -1,    14,
+      -1,    15,    -1,    16,    -1,    17,    -1,    18,    -1,    19,
+      -1,     3,    -1,     4,    -1,     5,    -1,     6,    -1,     7,
+      -1,     8,    -1,     9,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    11,    11,    12,    15,    15,    15,    18,    21,    24
+       0,    11,    11,    12,    15,    15,    15,    15,    15,    15,
+      15,    18,    21,    24,    27,    30,    33,    36
 };
 #endif
 
@@ -414,9 +424,10 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "NUMBER", "HELLO", "BYE", "STATE",
-  "$accept", "commands", "command", "hello_case", "bye_case",
-  "state_number_case", 0
+  "$end", "error", "$undefined", "SETENV", "PRINTENV", "UNSETENV", "CD",
+  "ALIAS", "UNALIAS", "BYE", "$accept", "commands", "command",
+  "setenv_case", "printenv_case", "unsetenv_case", "cd_case", "alias_case",
+  "unalias_case", "bye_case", 0
 };
 #endif
 
@@ -425,20 +436,22 @@ static const char *const yytname[] =
    token YYLEX-NUM.  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,   258,   259,   260,   261
+       0,   256,   257,   258,   259,   260,   261,   262,   263,   264
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,     7,     8,     8,     9,     9,     9,    10,    11,    12
+       0,    10,    11,    11,    12,    12,    12,    12,    12,    12,
+      12,    13,    14,    15,    16,    17,    18,    19
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     0,     2,     1,     1,     1,     1,     1,     2
+       0,     2,     0,     2,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -446,29 +459,29 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       2,     0,     1,     7,     8,     0,     3,     4,     5,     6,
-       9
+       2,     0,     1,    11,    12,    13,    14,    15,    16,    17,
+       3,     4,     5,     6,     7,     8,     9,    10
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     6,     7,     8,     9
+      -1,     1,    10,    11,    12,    13,    14,    15,    16,    17
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -3
+#define YYPACT_NINF -1
 static const yytype_int8 yypact[] =
 {
-      -3,     0,    -3,    -3,    -3,    -2,    -3,    -3,    -3,    -3,
-      -3
+      -1,     0,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -3,    -3,    -3,    -3,    -3,    -3
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -478,20 +491,20 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       2,    10,     0,     0,     3,     4,     5
+       2,     0,     0,     3,     4,     5,     6,     7,     8,     9
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     3,    -1,    -1,     4,     5,     6
+       0,    -1,    -1,     3,     4,     5,     6,     7,     8,     9
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     8,     0,     4,     5,     6,     9,    10,    11,    12,
-       3
+       0,    11,     0,     3,     4,     5,     6,     7,     8,     9,
+      12,    13,    14,    15,    16,    17,    18,    19
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1305,24 +1318,44 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 7:
-#line 18 "hello.y"
-    {printf("\t hello back !! \n");}
+        case 11:
+#line 18 "shell.y"
+    {printf("\t set !! \n");}
     break;
 
-  case 8:
-#line 21 "hello.y"
-    {printf("\t bye back !! \n");}
+  case 12:
+#line 21 "shell.y"
+    {printf("\t print !! \n");}
     break;
 
-  case 9:
-#line 24 "hello.y"
-    {printf("\t state with number received !! \n");}
+  case 13:
+#line 24 "shell.y"
+    {printf("\t unset !! \n");}
+    break;
+
+  case 14:
+#line 27 "shell.y"
+    {printf("\t cd !! \n");}
+    break;
+
+  case 15:
+#line 30 "shell.y"
+    {printf("\t alias !! \n");}
+    break;
+
+  case 16:
+#line 33 "shell.y"
+    {printf("\t unalias !! \n");}
+    break;
+
+  case 17:
+#line 36 "shell.y"
+    {printf("\t bye!! \n"); exit(0);}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1326 "y.tab.c"
+#line 1359 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
