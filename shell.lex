@@ -10,5 +10,5 @@ cd          return CD;
 alias       return ALIAS;
 unalias     return UNALIAS;
 bye         return BYE;
-\n          /* ignore end of line */;
+\n          ;
 %%
