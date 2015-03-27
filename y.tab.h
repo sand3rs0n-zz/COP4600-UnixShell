@@ -39,29 +39,43 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     SETENV = 258,
-     PRINTENV = 259,
-     UNSETENV = 260,
-     CD = 261,
-     ALIAS = 262,
-     UNALIAS = 263,
-     BYE = 264
+     NUMBER = 258,
+     STATE = 259,
+     SETENV = 260,
+     PRINTENV = 261,
+     UNSETENV = 262,
+     CD = 263,
+     ALIAS = 264,
+     UNALIAS = 265,
+     BYE = 266,
+     VARIABLE = 267
    };
 #endif
 /* Tokens.  */
-#define SETENV 258
-#define PRINTENV 259
-#define UNSETENV 260
-#define CD 261
-#define ALIAS 262
-#define UNALIAS 263
-#define BYE 264
+#define NUMBER 258
+#define STATE 259
+#define SETENV 260
+#define PRINTENV 261
+#define UNSETENV 262
+#define CD 263
+#define ALIAS 264
+#define UNALIAS 265
+#define BYE 266
+#define VARIABLE 267
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE
+#line 8 "shell.y"
+{
+    char* str;
+    int num;
+}
+/* Line 1529 of yacc.c.  */
+#line 78 "y.tab.h"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
