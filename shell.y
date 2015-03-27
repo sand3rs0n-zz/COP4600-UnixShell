@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 void yyerror(const char *s){fprintf(stderr, "user error, quit being dumb: %s\n",s);}
 int yywrap() {return 1;}
@@ -23,7 +24,7 @@ setenv_case:
     SETENV VARIABLE {printf("\t set !! \n");};
 
 printenv_case:
-    PRINTENV VARIABLE {printf("\t print !! \n");};
+    PRINTENV {printf("\t print !! %s\n", getenv("HOME"));};
 
 unsetenv_case:
     UNSETENV {printf("\t unset !! \n");};
