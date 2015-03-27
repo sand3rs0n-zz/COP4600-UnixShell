@@ -1,8 +1,8 @@
 run: shell
 	./shell.exe
 
-shell: lex.yy.c y.tab.c
-	gcc lex.yy.c y.tab.c -o shell.exe
+shell: lex.yy.c y.tab.c main.c
+	gcc lex.yy.c y.tab.c main.c -o shell.exe
 
 y.tab.c: shell.y
 	bison -dy shell.y
@@ -10,5 +10,8 @@ y.tab.c: shell.y
 lex.yy.c: shell.lex 
 	flex shell.lex
 
+main.c: main.c
+	gcc main.c
+
 clean:
-	rm shell.exe
+	rm shell.exe mainc.o
