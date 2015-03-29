@@ -34,6 +34,22 @@ setenv_case:
 		setenv(name, value, 1);
 		printf("\t set %s = %s!! \n", name, value);
 	};
+	| SETENV VARIABLE QUOTE arguments QUOTE {
+		const char* name2 = $2;
+		const char* value2 = string;
+		setenv(name2, value2, 1);
+		printf("\t set %s = %s!! \n", name2, value2);
+	};
+
+arguments:
+	VARIABLE {
+		string = $1;
+	};
+	| arguments VARIABLE {
+		const char* curr = $2;
+		strcat(string, " ");
+		strcat(string, curr);
+	};
 
 printenv_case:
 	PRINTENV {
