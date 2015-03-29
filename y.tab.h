@@ -47,8 +47,8 @@
      CD = 263,
      ALIAS = 264,
      UNALIAS = 265,
-     BYE = 266,
-     LS = 267,
+     LS = 266,
+     BYE = 267,
      VARIABLE = 268
    };
 #endif
@@ -61,8 +61,8 @@
 #define CD 263
 #define ALIAS 264
 #define UNALIAS 265
-#define BYE 266
-#define LS 267
+#define LS 266
+#define BYE 267
 #define VARIABLE 268
 
 
@@ -70,10 +70,10 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 11 "shell.y"
+#line 16 "shell.y"
 {
-    char* str;
-    int num;
+	char* str;
+	int num;
 }
 /* Line 1529 of yacc.c.  */
 #line 80 "y.tab.h"

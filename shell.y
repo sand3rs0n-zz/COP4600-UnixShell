@@ -3,25 +3,30 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "linked_list.h"
 #include <sys/file.h> 
 #include <dirent.h>
 
+linked_list *linklist;
 extern char **environ;
 void yyerror(const char *s){fprintf(stderr, "user error, quit being dumb: %s\n",s);}
 int yywrap() {return 1;}
 %}
+
 %union {
-char* str;
-int num;
+	char* str;
+	int num;
 }
 %token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS BYE 
 %token <str> VARIABLE
 %%
+
 // Cmdline = cmdline PIPE Cmdline | CmdLine GT FINLENAME | CmdLine LT FILENAME | simpleCmd
 commands:
 | commands command;
 command:
 setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|ls_case|bye_case;
+
 setenv_case:
 	SETENV VARIABLE VARIABLE {
 		const char* name = $2;
@@ -29,6 +34,7 @@ setenv_case:
 		setenv(name, value, 1);
 		printf("\t set %s = %s!! \n", name, value);
 	};
+
 printenv_case:
 	PRINTENV {
 		int i = 0;
@@ -36,11 +42,13 @@ printenv_case:
 			printf("%s\n", environ[i++]);
 		}
 	};
+
 unsetenv_case:
 	UNSETENV VARIABLE {
 		const char* name = $2;
 		unsetenv(name);
 	};
+
 cd_case:
 	CD {
 		printf("\t cd !! \n");
@@ -49,14 +57,25 @@ cd_case:
 	| CD VARIABLE {
 		chdir($2);
 	};
-alias_case:
-	ALIAS {
+
+alias_case: 
+	ALIAS VARIABLE VARIABLE {
+		char *name = $2;
+		char *value = $3;
 		printf("\t alias !! \n");
+		push_linked_list(linklist, name, value);
+	}
+	| ALIAS {
+		print_linked_list(linklist);
 	};
+
 unalias_case:
-	UNALIAS {
+	UNALIAS VARIABLE {
+		char *name = $2;
 		printf("\t unalias !! \n");
+		remove_node_from_list(linklist, name);
 	};
+
 ls_case: 
 	LS {
 		DIR *d;
@@ -95,6 +114,7 @@ ls_case:
 			closedir(d);
 		}
 	};
+
 bye_case:
 	BYE {
 		printf("\t bye!! \n"); 

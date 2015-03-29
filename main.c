@@ -5,8 +5,13 @@
 #include <stddef.h>
 #include <limits.h>
 #include "y.tab.h"
+#include "linked_list.h"
+
+
+extern struct linked_list *linklist;
 
 void shellInit() {
+	linklist = create_linked_list();
 	// init all variables. 
 	// define (allocate storage) for some var/tables
 	//init all tables (e.g., alias table)
@@ -31,10 +36,9 @@ void processCommand() {
 
 int main(void) {
 	printf("\t\tWelcome to the Grand Illusion\n");
-	//shell initialize	
+	shellInit();	
 	const size_t size = PATH_MAX;
 	char buf[PATH_MAX] = "";
-
 	while(1) {
 	getcwd(buf, size);
 	printf("%s>> ", buf);
