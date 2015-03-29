@@ -49,7 +49,11 @@
      UNALIAS = 265,
      LS = 266,
      BYE = 267,
-     VARIABLE = 268
+     DOLLAR = 268,
+     ECURL = 269,
+     OCURL = 270,
+     QUOTE = 271,
+     VARIABLE = 272
    };
 #endif
 /* Tokens.  */
@@ -63,20 +67,24 @@
 #define UNALIAS 265
 #define LS 266
 #define BYE 267
-#define VARIABLE 268
+#define DOLLAR 268
+#define ECURL 269
+#define OCURL 270
+#define QUOTE 271
+#define VARIABLE 272
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 16 "shell.y"
+#line 17 "shell.y"
 {
 	char* str;
 	int num;
 }
 /* Line 1529 of yacc.c.  */
-#line 80 "y.tab.h"
+#line 88 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

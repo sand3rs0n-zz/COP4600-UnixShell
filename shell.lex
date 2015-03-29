@@ -14,6 +14,10 @@ cd          	return CD;
 alias       	return ALIAS;
 unalias     	return UNALIAS;
 ls				return LS;
+\"				return QUOTE;
+\$				return DOLLAR;
+\{				return OCURL;
+\}				return ECURL;
 [0-9a-zA-Z/]+	{ yylval.str = strdup(yytext); return VARIABLE; };
 \n          	return -1;
 %%

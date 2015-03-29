@@ -7,6 +7,7 @@
 #include <sys/file.h> 
 #include <dirent.h>
 
+const char* string = "a";
 linked_list *linklist;
 extern char **environ;
 void yyerror(const char *s){fprintf(stderr, "user error, quit being dumb: %s\n",s);}
@@ -17,7 +18,7 @@ int yywrap() {return 1;}
 	char* str;
 	int num;
 }
-%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS BYE 
+%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS BYE DOLLAR ECURL OCURL QUOTE
 %token <str> VARIABLE
 %%
 
@@ -102,7 +103,6 @@ alias_case:
 	| ALIAS {
 		print_linked_list(linklist);
 	};
-
 unalias_case:
 	UNALIAS VARIABLE {
 		char *name = $2;
