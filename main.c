@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stddef.h>
+#include <limits.h>
 #include "y.tab.h"
 
 void shellInit() {
@@ -27,14 +31,18 @@ void processCommand() {
 
 int main(void) {
 	printf("\t\tWelcome to the Grand Illusion\n");
-	//shell initialize
+	//shell initialize	
+	const size_t size = PATH_MAX;
+	char buf[PATH_MAX] = "";
+
 	while(1) {
-	printf("Type your input you: ");
-	getCommand();
-	//switch (CMD = getCommand()) {
-		//Case: BYE		exit();
-		//Case: ERRORS 	recover_from_errors();
-		//Case: OK 		processCommand();
-	//}
+	getcwd(buf, size);
+	printf("%s>> ", buf);
+	int CMD;
+	switch (CMD = getCommand()) {
+		case 2: 		exit(0);
+		case 1: 	 	;//recover_from_errors();
+		case 0: 		processCommand();
+	}
 	}
 }

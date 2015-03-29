@@ -48,7 +48,8 @@
      ALIAS = 264,
      UNALIAS = 265,
      BYE = 266,
-     VARIABLE = 267
+     LS = 267,
+     VARIABLE = 268
    };
 #endif
 /* Tokens.  */
@@ -61,20 +62,21 @@
 #define ALIAS 264
 #define UNALIAS 265
 #define BYE 266
-#define VARIABLE 267
+#define LS 267
+#define VARIABLE 268
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 9 "shell.y"
+#line 11 "shell.y"
 {
     char* str;
     int num;
 }
 /* Line 1529 of yacc.c.  */
-#line 78 "y.tab.h"
+#line 80 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
