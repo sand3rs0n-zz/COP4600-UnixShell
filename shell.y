@@ -34,6 +34,12 @@ setenv_case:
 		setenv(name, value, 1);
 		printf("\t set %s = %s!! \n", name, value);
 	};
+	| SETENV VARIABLE env_expansion {
+		const char* name = $2;
+		const char* value = string;
+		setenv(name, value, 1);
+		printf("\t set %s = %s!! \n", name, value);
+	};
 	| SETENV VARIABLE QUOTE arguments QUOTE {
 		const char* name2 = $2;
 		const char* value2 = string;
@@ -45,11 +51,23 @@ arguments:
 	VARIABLE {
 		string = $1;
 	};
+	| env_expansion;
 	| arguments VARIABLE {
 		const char* curr = $2;
 		strcat(string, " ");
 		strcat(string, curr);
 	};
+	| arguments DOLLAR OCURL VARIABLE ECURL {
+		const char* curr = getenv($4);
+		strcat(string, " ");
+		strcat(string, curr);
+	};
+
+env_expansion:
+	DOLLAR OCURL VARIABLE ECURL {
+		string = getenv($3);
+	};
+	
 
 printenv_case:
 	PRINTENV {
