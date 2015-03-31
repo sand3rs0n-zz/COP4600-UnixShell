@@ -26,4 +26,6 @@ void print_linked_list(linked_list *linkedlist);
 
 char *value_from_list(linked_list *linkedlist, char *name);
 
+char *recursive_expansion(linked_list *linkedlist, linked_list *recursivelist, char *word);
+
 #endif

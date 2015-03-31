@@ -1,5 +1,6 @@
 #include "linked_list.h"
 #include <stdlib.h>
+#include <string.h>
 
 linked_list *create_linked_list() {
 	linked_list *linkedlist = malloc(sizeof(linked_list));
@@ -48,13 +49,21 @@ void push_linked_list(linked_list *linkedlist, char *name, char *data) {
 char *value_from_list(linked_list *linkedlist, char *name) {
 	node *track = malloc(sizeof(node));
 	track = linkedlist->start;
-	const char *value = "a";
+	int found = 0;
+	const char *value = "Does not Exist";
 	while (track != NULL) {
 		if(equals(track->name_of_node, name)) {
 			value = track->data;
+			found = 1;
 			break;
 		}
 		track = track->next;
+	}
+	if (found) {
+		linked_list *recursivelist = create_linked_list();
+		push_linked_list(recursivelist, track->name_of_node, track->data);
+		char *newvalue = recursive_expansion(linkedlist, recursivelist, value);
+		return newvalue;
 	}
 	return value;
 }
@@ -98,24 +107,18 @@ void remove_node_from_list(linked_list *linkedlist, char *name) {
 void print_linked_list(linked_list *linkedlist){
 	node * current_node = linkedlist->start;
 	while (current_node != NULL) {
-		printf("%s=",current_node->name_of_node);
-		int i = 0;
-		while(current_node->data[i]) {
-			if(isspace(current_node->data[i])) {
-				printf("\n");
-			} else {
-				printf("%c", current_node->data[i]);
-			}
-			i++;
-		}
-		printf("\n");
+		printf("%s=%s\n",current_node->name_of_node, current_node->data);
 		current_node = current_node->next;
 	}
 }
 
 int equals(char *value1, char *value2) {
 	int i = 0;
-	int len = strlen(value2);
+	int len = strlen(value1);
+	int len2 = strlen(value2);
+	if(len != len2) {
+		return 0;
+	}
 	while ((value1[i] == value2[i]) && (i < len)) {
 		i++;
 	}
@@ -124,4 +127,62 @@ int equals(char *value1, char *value2) {
 	} else {
 		return 0;
 	}
+}
+
+char *recursive_expansion(linked_list *linkedlist, linked_list *recursivelist, char *word) {
+	node *track = malloc(sizeof(node));
+	track = linkedlist->start;
+	node *innertrack = malloc(sizeof(node));
+	innertrack = linkedlist->start;
+	node *recursivetrack = malloc(sizeof(node));
+	recursivetrack = recursivelist->start;
+	char* newword = malloc(sizeof(word));
+	newword = word;
+	int i = 0;
+	int length = strlen(word);
+	char *subword = "a";
+	int spaces = 0;
+	for (int i = 0; i < length; i++) {
+		if (isspace(track->data[i])) {
+			spaces++;
+		}
+	}
+	if (spaces == 0) {
+			while(recursivetrack != NULL) {
+				if (equals(recursivetrack->name_of_node, newword)) {
+					newword = "Infinite loop";
+					return newword;
+				} else {
+					recursivetrack = recursivetrack->next;
+				}
+			}
+		while (track != NULL) {
+			if (equals(newword, track->name_of_node)){
+				newword = track->data;
+				push_linked_list(recursivelist, track->name_of_node, track->data);
+				subword = recursive_expansion(linkedlist, recursivelist, newword);
+				newword = subword;
+			} else{
+				track = track->next;
+			}
+		}
+		return newword;
+	}
+/*
+	for (int i = 0; i < length; i++) {
+		if (isspace(track->data[i])) {
+			for (int j = 0; j < i; j++) {
+				subword[j] = track->data[j];
+			}
+		}
+		while (innertrack != NULL) {
+			if(equals(subword, innertrack->name_of_node)){
+				subword = innertrack->data;
+				break;
+			}
+			innertrack = innertrack->next;
+		}
+		strcat(newword, subword);
+	}*/
+	return word;
 }
