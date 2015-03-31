@@ -3,49 +3,70 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "linked_list.h"
 #include <sys/file.h> 
 #include <dirent.h>
+#include "linked_list.h"
 
 const char* string = "a";
 linked_list *linklist;
-extern char **environ;
-void yyerror(const char *s){fprintf(stderr, "user error, quit being dumb: %s\n",s);}
-int yywrap() {return 1;}
+int command = -1;
+const char* cmdtbl[100][100] = {"a"};
+int i = 0; //row
+int j = 0; //col
+int curr;
+void yyerror(const char *s){
+	fprintf(stderr, "user error, quit being dumb: %s\n",s);
+}
+int yywrap() {
+	return 1;
+}
 %}
-
 %union {
 	char* str;
 	int num;
 }
-%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS BYE DOLLAR ECURL OCURL QUOTE
-%token <str> VARIABLE
+%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL BYE 
+%token <str> VARIABLE 
 %%
-
 // Cmdline = cmdline PIPE Cmdline | CmdLine GT FINLENAME | CmdLine LT FILENAME | simpleCmd
 commands:
 | commands command;
 command:
-setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|ls_case|bye_case|variable_case;
+setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|ls_case|bye_case;
 
 setenv_case:
 	SETENV VARIABLE VARIABLE {
+		command = 1;
+		j = 0;
 		const char* name = $2;
 		const char* value = $3;
-		setenv(name, value, 1);
-		printf("\t set %s = %s!! \n", name, value);
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		i += 1;
 	};
 	| SETENV VARIABLE env_expansion {
+		command = 1;
+		j = 0;
 		const char* name = $2;
 		const char* value = string;
-		setenv(name, value, 1);
-		printf("\t set %s = %s!! \n", name, value);
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		i += 1;
 	};
 	| SETENV VARIABLE QUOTE arguments QUOTE {
-		const char* name2 = $2;
-		const char* value2 = string;
-		setenv(name2, value2, 1);
-		printf("\t set %s = %s!! \n", name2, value2);
+		j = 0;
+		command = 1;
+		const char* name = $2;
+		const char* value = string;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		i += 1;
 	};
 
 arguments:
@@ -69,103 +90,59 @@ env_expansion:
 		string = getenv($3);
 	};
 	
-
 printenv_case:
 	PRINTENV {
-		int i = 0;
-		while (environ[i]) {
-			printf("%s\n", environ[i++]);
-		}
+		command = 2;
 	};
-
 unsetenv_case:
 	UNSETENV VARIABLE {
-		const char* name = $2;
-		unsetenv(name);
+		command = 3;
+		j = 0;
+		cmdtbl[i][j] = $2;
+		i += 1;
 	};
-
 cd_case:
 	CD {
+		command = 4;
+		/*
 		printf("\t cd !! \n");
-		chdir(getenv("HOME"));
+		chdir(getenv("HOME"));*/
 	};
 	| CD VARIABLE {
-		chdir($2);
+		command = 5;
+		j = 0;
+		cmdtbl[i][j] = $2;
+		i += 1; /*
+		chdir($2);*/
 	};
-
-alias_case: 
-	ALIAS VARIABLE VARIABLE {
+alias_case:
+	ALIAS VARIABLE VARIABLE {/*
 		char *name = $2;
 		char *value = $3;
 		printf("\t alias !! \n");
 		push_linked_list(linklist, name, value);
-	}	
-	| ALIAS VARIABLE QUOTE arguments QUOTE {
-		char *name = $2;
-		char *value = string;
-		printf("\t alias !! \n");
-		push_linked_list(linklist, name, value);
 	}
 	| ALIAS {
-		print_linked_list(linklist);
+		print_linked_list(linklist);*/
 	};
 unalias_case:
-	UNALIAS VARIABLE {
-		char *name = $2;
-		printf("\t unalias !! \n");
-		remove_node_from_list(linklist, name);
-	};
-
+	UNALIAS VARIABLE { /*
+	char *name = $2;
+	printf("\t unalias !! \n");
+	remove_node_from_list(linklist, name);*/
+};
 ls_case: 
 	LS {
-		DIR *d;
-		struct dirent *dir;
-		d = opendir(".");
-		if(d) {
-			while ((dir = readdir(d)) != NULL) {
-				printf("%s\n", dir->d_name);
-			}
-			closedir(d);
-		}
+		command = 8;
 	};
 	| LS VARIABLE {
-		DIR *d;
-		struct dirent *dir;
-		d = opendir(".");
-		int works;
-		const char* strIn = $2;
-		int len = strlen($2);
-		char* strOut;
-		if(d) {
-			while ((dir = readdir(d)) != NULL) {
-				works = 1;
-				strOut = dir->d_name;
-				int i;
-				for (i = 0; i < len; i++) {
-					if (strIn[i] != strOut[i]) {
-						works = 0;
-						break;
-					}
-				}
-				if (works == 1)
-					printf("%s\n", dir->d_name);
-
-			}
-			closedir(d);
-		}
+		j = 0;
+		command = 9;
+		cmdtbl [i][j] = $2;
+		i += 1; 
 	};
-
-variable_case:
-	VARIABLE {
-		const char *alias = $1;
-		char *value = value_from_list(linklist, alias);
-		printf("%s\n", value);
-	};
-
 bye_case:
 	BYE {
-		printf("\t bye!! \n"); 
-		exit(0);
-		
+		command = 10;		
 	};
 %%
