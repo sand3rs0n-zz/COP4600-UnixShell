@@ -18,6 +18,6 @@ ls				return LS;
 \$				return DOLLAR;
 \{				return OCURL;
 \}				return ECURL;
-[0-9a-zA-Z/]+	{ yylval.str = strdup(yytext); return VARIABLE; };
+[0-9a-zA-Z/:.~\-?*]+	{ yylval.str = strdup(yytext); return VARIABLE; };
 \n          	return -1;
 %%

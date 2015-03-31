@@ -24,4 +24,6 @@ void remove_node_from_list(linked_list *linkedlist, char *name);
 
 void print_linked_list(linked_list *linkedlist);
 
+char *value_from_list(linked_list *linkedlist, char *name);
+
 #endif
