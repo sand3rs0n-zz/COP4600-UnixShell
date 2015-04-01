@@ -136,11 +136,10 @@ char *recursive_expansion(linked_list *linkedlist, linked_list *recursivelist, c
 	innertrack = linkedlist->start;
 	node *recursivetrack = malloc(sizeof(node));
 	recursivetrack = recursivelist->start;
+
 	char* newword = malloc(sizeof(word));
 	newword = word;
-	int i = 0;
 	int length = strlen(word);
-	char *subword = "a";
 	int spaces = 0;
 	for (int i = 0; i < length; i++) {
 		if (isspace(track->data[i])) {
@@ -160,29 +159,64 @@ char *recursive_expansion(linked_list *linkedlist, linked_list *recursivelist, c
 			if (equals(newword, track->name_of_node)){
 				newword = track->data;
 				push_linked_list(recursivelist, track->name_of_node, track->data);
-				subword = recursive_expansion(linkedlist, recursivelist, newword);
-				newword = subword;
+				word = recursive_expansion(linkedlist, recursivelist, newword);
+				newword = word;
 			} else{
 				track = track->next;
 			}
 		}
 		return newword;
 	}
-/*
+	//multi word recursion
+	char subwords[100][100];
+	int wordlength = 0;
+	int wordcount = 0;
+	int lastspace = 0;
 	for (int i = 0; i < length; i++) {
+		wordlength++;
 		if (isspace(track->data[i])) {
-			for (int j = 0; j < i; j++) {
-				subword[j] = track->data[j];
+			for (int j = 0; j < wordlength-1; j++) {
+				subwords[wordcount][j] = track->data[j];
 			}
-		}
-		while (innertrack != NULL) {
-			if(equals(subword, innertrack->name_of_node)){
-				subword = innertrack->data;
+			wordlength = 0;
+			wordcount++;
+			lastspace = i;
+		} else if (i == (length - 1)) {
+			int h = 0;
+			for (int j = lastspace+1; j <= lastspace + wordlength; j++) {
+				subwords[wordcount][h] = track->data[j];
+				h++;
+			}
+			wordlength = 0;
+			wordcount++;
+		} 
+	}
+	
+	char* totalbuild = malloc(sizeof(word) * 2);
+	char* rebuild = malloc(sizeof(word));
+	rebuild = word;
+	char* val = malloc(sizeof(word));
+	val = "";
+	int recurcount = 0;
+	for (int i = 0; i < wordcount; i++) {
+		val = &subwords[i];
+		track = linkedlist->start;
+		while(track != NULL) {
+			if(equals(subwords[i], track->name_of_node)) {
+				val = track->data;
+				recurcount++;
 				break;
 			}
-			innertrack = innertrack->next;
+			track = track->next;
 		}
-		strcat(newword, subword);
-	}*/
+		char *rebuild = recursive_expansion(linkedlist, recursivelist, val);
+		strcat(totalbuild, rebuild);
+		strcat(totalbuild, " ");
+	} 
+	memset(subwords, 0, sizeof(subwords[0][0]) * 100 * 100);
+		
+	if(recurcount) {
+		return totalbuild;
+	}
 	return word;
 }
