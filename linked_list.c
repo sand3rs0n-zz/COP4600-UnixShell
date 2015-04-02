@@ -1,7 +1,7 @@
 #include "linked_list.h"
 #include <stdlib.h>
 #include <string.h>
-int z = 0;
+
 linked_list *create_linked_list() {
 	linked_list *linkedlist = malloc(sizeof(linked_list));
 	linkedlist->start = NULL;
@@ -159,6 +159,7 @@ char *recursive_expansion(linked_list *linkedlist, linked_list *recursivelist, c
 				push_linked_list(recursivelist, track->name_of_node, track->data);
 				word = recursive_expansion(linkedlist, recursivelist, newword);
 				newword = word;
+				return newword;
 			} else{
 				track = track->next;
 			}
@@ -169,9 +170,6 @@ char *recursive_expansion(linked_list *linkedlist, linked_list *recursivelist, c
 	char *subword = malloc(sizeof(word));
 	char *remain = malloc(sizeof(word));
 	int wordlength = 0;
-	int lastspace = 0;
-
-	//fix here down
 
 	for (int i = 0; i < length; i++) {
 		wordlength++;
@@ -183,29 +181,28 @@ char *recursive_expansion(linked_list *linkedlist, linked_list *recursivelist, c
 			for (int j = wordlength; j < length; j++) {
 				remain[h++] = word[j];
 			}
-			lastspace = i;
 			break;
 		}
 	}
 	char* rebuild = malloc(sizeof(word));
-	char *val;
-	rebuild = word;
 	track = linkedlist->start;
+	char* val = malloc(sizeof(word));
 	while(track != NULL) {
-		while(recursivetrack != NULL) {
-			if (equals(recursivetrack->name_of_node, newword)) {
-				newword = "Infinite loop";
-				return newword;
-			} else {
-				recursivetrack = recursivetrack->next;
-			}
-		}
 		if(equals(track->name_of_node, subword)) {
-			word = track->data;
-			z++;
-			printf("%s\n", subword);
+			for(int z = 0; z < strlen(track->data); z++) {
+				val[z] = track->data[z];
+			}
+			while(recursivetrack != NULL) {
+				if (equals(recursivetrack->name_of_node, subword)) {
+					printf("here\n");
+					char* infin = "Infinite loop";
+					return infin;
+				} else {
+					recursivetrack = recursivetrack->next;
+				}
+			}
 			push_linked_list(recursivelist, track->name_of_node, track->data);
-			rebuild = recursive_expansion(linkedlist, recursivelist, word);
+			rebuild = recursive_expansion(linkedlist, recursivelist, val);
 			strcat(rebuild, " ");
 			strcat(rebuild, remain);
 			return rebuild;	
