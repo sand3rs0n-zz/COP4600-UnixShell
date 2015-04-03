@@ -134,7 +134,7 @@ int main(int argc, char* argv[], char **envp) {
 	//FILE* file = fopen(fileName, "r");
 	char line[256];
 	printf("\t\tWelcome to the Grand Illusion\n");
-	//shell initialize
+	shellInit();
 	size_t size = PATH_MAX;
 	char buf[PATH_MAX] = "";
 	while(1) {

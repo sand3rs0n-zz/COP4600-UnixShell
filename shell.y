@@ -32,7 +32,7 @@ int yywrap() {
 commands:
 | commands command;
 command:
-setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|ls_case|bye_case;
+setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|variable_case|ls_case|bye_case;
 
 setenv_case:
 	SETENV VARIABLE VARIABLE {
@@ -116,20 +116,31 @@ cd_case:
 		chdir($2);*/
 	};
 alias_case:
-	ALIAS VARIABLE VARIABLE {/*
+	ALIAS VARIABLE VARIABLE {
 		char *name = $2;
 		char *value = $3;
 		printf("\t alias !! \n");
 		push_linked_list(linklist, name, value);
 	}
+	| ALIAS VARIABLE QUOTE arguments QUOTE {
+		char *name = $2;
+		char *value = string;
+		printf("\t alias !! \n");
+		push_linked_list(linklist, name, value);
+	}
 	| ALIAS {
-		print_linked_list(linklist);*/
+		print_linked_list(linklist);
 	};
 unalias_case:
-	UNALIAS VARIABLE { /*
+	UNALIAS VARIABLE {
 	char *name = $2;
 	printf("\t unalias !! \n");
-	remove_node_from_list(linklist, name);*/
+	remove_node_from_list(linklist, name);
+};
+variable_case:
+	VARIABLE {
+	char *expand = value_from_list(linklist, $1);
+	printf("%s\n", expand);
 };
 ls_case: 
 	LS {

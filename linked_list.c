@@ -194,8 +194,9 @@ char *recursive_expansion(linked_list *linkedlist, linked_list *recursivelist, c
 			}
 			while(recursivetrack != NULL) {
 				if (equals(recursivetrack->name_of_node, subword)) {
-					printf("here\n");
-					char* infin = "Infinite loop";
+					char* infin = malloc(sizeof(word));
+					infin = "Infinite loop";
+					printf("%s\n", infin);
 					return infin;
 				} else {
 					recursivetrack = recursivetrack->next;

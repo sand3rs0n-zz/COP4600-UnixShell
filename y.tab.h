@@ -48,11 +48,11 @@
      ALIAS = 264,
      UNALIAS = 265,
      LS = 266,
-     BYE = 267,
+     QUOTE = 267,
      DOLLAR = 268,
-     ECURL = 269,
-     OCURL = 270,
-     QUOTE = 271,
+     OCURL = 269,
+     ECURL = 270,
+     BYE = 271,
      VARIABLE = 272
    };
 #endif
@@ -66,11 +66,11 @@
 #define ALIAS 264
 #define UNALIAS 265
 #define LS 266
-#define BYE 267
+#define QUOTE 267
 #define DOLLAR 268
-#define ECURL 269
-#define OCURL 270
-#define QUOTE 271
+#define OCURL 269
+#define ECURL 270
+#define BYE 271
 #define VARIABLE 272
 
 
@@ -78,7 +78,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 17 "shell.y"
+#line 24 "shell.y"
 {
 	char* str;
 	int num;
