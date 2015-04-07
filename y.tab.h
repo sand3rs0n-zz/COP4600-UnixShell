@@ -52,8 +52,10 @@
      DOLLAR = 268,
      OCURL = 269,
      ECURL = 270,
-     BYE = 271,
-     VARIABLE = 272
+     LESS = 271,
+     GREATER = 272,
+     BYE = 273,
+     VARIABLE = 274
    };
 #endif
 /* Tokens.  */
@@ -70,8 +72,10 @@
 #define DOLLAR 268
 #define OCURL 269
 #define ECURL 270
-#define BYE 271
-#define VARIABLE 272
+#define LESS 271
+#define GREATER 272
+#define BYE 273
+#define VARIABLE 274
 
 
 
@@ -84,7 +88,7 @@ typedef union YYSTYPE
 	int num;
 }
 /* Line 1529 of yacc.c.  */
-#line 88 "y.tab.h"
+#line 92 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
