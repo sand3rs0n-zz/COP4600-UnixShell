@@ -7,6 +7,9 @@
 #include <limits.h>
 #include "linked_list.h"
 #include <dirent.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 extern struct linked_list *linklist;
 extern int command;
@@ -29,10 +32,13 @@ int getCommand() {
 	//initialize scanner and parser();
 	if (yyparse()) {
 		//understand_errors();
+		printf("got here bad");
 		return(0);
 	}
-	else
+	else {
+		printf("got here get");
 		return(1);
+	}
 }
 
 void execute_it() {
@@ -84,18 +90,94 @@ void ls_dir() {
 	}
 }
 
+int IO_redirect_less () {
+	//FILE* f = fopen(cmdtbl[i-1][j-1], "r");
+	int mypipe[2]; //pipe with two ends, read and write
+	pid_t p;
+	int status, wpid;
+	pipe(mypipe); //creates pipe
+	p = fork();
+	if (p < 0) {
+		perror("failed to fork");
+	}
+	else if (p == 0) {
+		//do allllll
+		int fd = open(cmdtbl[i-1][j-1], O_RDONLY);
+		dup2(fd, STDIN_FILENO);
+		close(fd);
+		const char* path = getenv("PWD");
+		char dest[100];
+		strcpy(dest, path);
+		strcat(dest, "/");
+		strcat(dest, cmdtbl[i-1][j-1]);
+		execl(dest, cmdtbl[i-1][j-1], 0);
+	}
+	else {
+		while ((wpid = wait(&status)) > 0) {
+			//
+		}
+	}
+	return 0;
+}
+
+void IO_redirect_greater(FILE* f, const char* dest) {
+	int fd = open(f, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
+	if (fd != -1) {
+		dup2(fd, 2);
+	}
+	else {
+		perror(f);
+	}
+	close(f);
+}
+
+int string_equals (const char* string1, const char* string2) {
+	int ret = 1;
+	int i;
+	for (i = 0; i < strlen(string1); i++) {
+		if (string1[i] != string2[i]) {
+			ret = 0;
+			break;
+		}
+	}
+	return ret;
+}
+
+void setenv1() { 
+	char dest[1024];
+	strcpy(dest, "set ");
+	strcat(dest, cmdtbl[i-1][j-4]);
+	strcat(dest, " = ");
+	strcat(dest, cmdtbl[i-1][j-3]);
+	if (string_equals(cmdtbl[i-1][j-2], "greater")) {
+		IO_redirect_greater(cmdtbl[i-1][j-1], dest);
+		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
+		printf("\t set %s = %s!! \n", cmdtbl[i-1][j-4], cmdtbl[i-1][j-3]);
+	}
+	/*else if (string_equals(cmdtbl[i-1][j-2], "less")) {
+		IO_redirect_less(cmdtbl[i-1][j-1]);
+		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
+		printf("\t set %s = %s!! \n", cmdtbl[i-1][j-4], cmdtbl[i-1][j-3]);
+	}*/
+	else {
+		printf("%s\n", cmdtbl[i-1][j-2]);
+		setenv(cmdtbl[i-1][j-2], cmdtbl[i-1][j-1], 1);
+		printf("\t set %s = %s!! \n", cmdtbl[i-1][j-2], cmdtbl[i-1][j-1]);
+	}
+}
+
 void do_it() {
 	switch (command) {
 		case 1: //setenv
-			setenv(cmdtbl[i-1][j-2], cmdtbl[i-1][j-1], 1);
-			printf("\t set %s = %s!! \n", cmdtbl[i-1][j-2], cmdtbl[i-1][j-1]);
+			printf("gothere switch");
+			setenv1();
 			break;
 		case 2: //printenv
 			printenv();
 			break;
 		case 3: //unsetenv
 			unsetenv(cmdtbl[i-1][j]);
-			printf ("\t unset !!"); 
+			printf ("\t unset !!\n"); 
 			break;
 		case 4:	//cd home
 			printf("\t cd !! \n");
@@ -119,19 +201,22 @@ void do_it() {
 			printf("\t bye!! \n"); 
 			exit(0);
 			break;
+		case 11: //read
+			IO_redirect_less();
+			break;
 	};
 }
 
 void processCommand() {
-	if (command)	
+	if (command) {
+		printf("got here process");	
 		do_it();
+	}
 	else 
 		execute_it();
 }
 
 int main(int argc, char* argv[], char **envp) {
-	//char* fileName = argv[6];
-	//FILE* file = fopen(fileName, "r");
 	char line[256];
 	printf("\t\tWelcome to the Grand Illusion\n");
 	//shell initialize
@@ -140,14 +225,12 @@ int main(int argc, char* argv[], char **envp) {
 	while(1) {
 		getcwd(buf, size);
 		printf("%s>>", buf);
-		//getCommand();
-		//int CMD;
 		switch (getCommand()) {
 		//Case: BYE exit();
 		//Case: ERRORS recover_from_errors();
 		case 1:
+			printf("got here main");
 			processCommand();
 		};
 	}
-	//fclose(file);
 }
