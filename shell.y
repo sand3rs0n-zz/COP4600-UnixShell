@@ -25,28 +25,31 @@ int yywrap() {
 	char* str;
 	int num;
 }
-%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL BYE 
+%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER BYE 
 %token <str> VARIABLE 
 %%
 // Cmdline = cmdline PIPE Cmdline | CmdLine GT FINLENAME | CmdLine LT FILENAME | simpleCmd
 commands:
 | commands command;
 command:
-setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|variable_case|ls_case|bye_case;
+read_case|setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|variable_case|ls_case|bye_case;
 
-setenv_case:
-	SETENV VARIABLE VARIABLE {
-		command = 1;
+read_case:
+	LESS VARIABLE {
 		j = 0;
-		const char* name = $2;
-		const char* value = $3;
-		cmdtbl[i][j] = name;
+		command = 11;
+		const char* file = $2;
+		const char* io = "greater";
+		cmdtbl[i][j] = io;
 		j += 1;
-		cmdtbl[i][j] = value;
+		cmdtbl[i][j] = file;
 		j += 1;
 		i += 1;
 	};
-	| SETENV VARIABLE env_expansion {
+
+setenv_case:
+	SETENV VARIABLE arguments {
+		printf("got here case");
 		command = 1;
 		j = 0;
 		const char* name = $2;
@@ -58,13 +61,30 @@ setenv_case:
 		i += 1;
 	};
 	| SETENV VARIABLE QUOTE arguments QUOTE {
-		j = 0;
 		command = 1;
+		j = 0;
 		const char* name = $2;
 		const char* value = string;
 		cmdtbl[i][j] = name;
 		j += 1;
 		cmdtbl[i][j] = value;
+		j += 1;
+		i += 1;
+	};
+	| SETENV VARIABLE arguments GREATER VARIABLE {
+		command = 1;
+		j = 0;
+		const char* name = $2;
+		const char* value = string;
+		const char* io = "greater";
+		const char* file = $5;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = file;
 		j += 1;
 		i += 1;
 	};
@@ -74,6 +94,7 @@ arguments:
 		string = $1;
 	};
 	| env_expansion;
+	//| io_redirection;
 	| arguments VARIABLE {
 		const char* curr = $2;
 		strcat(string, " ");
@@ -89,6 +110,15 @@ env_expansion:
 	DOLLAR OCURL VARIABLE ECURL {
 		string = getenv($3);
 	};
+
+/*io_redirection:
+	IO VARIABLE {
+	LESS VARIABLE {
+
+	};
+	| GREATER VARIABLE {
+	
+	};*/
 	
 printenv_case:
 	PRINTENV {
@@ -104,17 +134,20 @@ unsetenv_case:
 cd_case:
 	CD {
 		command = 4;
-		/*
-		printf("\t cd !! \n");
-		chdir(getenv("HOME"));*/
 	};
 	| CD VARIABLE {
 		command = 5;
 		j = 0;
 		cmdtbl[i][j] = $2;
-		i += 1; /*
-		chdir($2);*/
+		i += 1; 
 	};
+	| CD arguments {
+		command = 5;
+		j = 0;
+		cmdtbl[i][j] = string;
+		i += 1;
+	};
+		 
 alias_case:
 	ALIAS VARIABLE VARIABLE {
 		char *name = $2;
