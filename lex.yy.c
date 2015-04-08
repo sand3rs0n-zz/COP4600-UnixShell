@@ -373,10 +373,10 @@ static yyconst flex_int16_t yy_accept[56] =
     {   0,
         0,    0,   19,   18,   17,   11,   12,    9,   15,   16,
         9,    9,    9,    9,    9,    9,    9,    9,   13,   14,
-        9,    9,    9,    6,    9,    2,    9,    9,    9,    9,
-        1,    9,    9,    9,    9,    9,    9,    9,    9,    9,
-        7,    9,    9,    9,    9,    9,    3,    9,    9,    9,
-        8,    9,    4,    5,    0
+        9,    9,    9,    7,    9,    3,    9,    9,    9,    9,
+        2,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        1,    9,    9,    9,    9,    9,    4,    9,    9,    9,
+        8,    9,    5,    6,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -753,37 +753,37 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 7 "shell.lex"
-return BYE;
+return ALIAS;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 8 "shell.lex"
-return STATE;
+return BYE;
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 9 "shell.lex"
-return SETENV;
+return STATE;
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 10 "shell.lex"
-return PRINTENV;
+return SETENV;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 11 "shell.lex"
-return UNSETENV;
+return PRINTENV;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 12 "shell.lex"
-return CD;
+return UNSETENV;
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 13 "shell.lex"
-return ALIAS;
+return CD;
 	YY_BREAK
 case 8:
 YY_RULE_SETUP

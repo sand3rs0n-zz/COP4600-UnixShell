@@ -4,13 +4,13 @@
 #include "y.tab.h"
 %}
 %%
+alias return ALIAS;
 bye return BYE;
 on return STATE;
 setenv return SETENV;
 printenv return PRINTENV;
 unsetenv return UNSETENV;
 cd return CD;
-alias return ALIAS;
 unalias return UNALIAS;
 [0-9a-zA-Z/\.]+ {yylval.str = strdup(yytext); return VARIABLE; };
 ls return LS;

@@ -174,7 +174,9 @@ void do_it() {
 			printf("\t cd %s\n", cmdtbl[i-1][j]);
 			chdir(cmdtbl[i-1][j]);	
 			break;
-		case 6: //alias
+		case 6: //alias	
+			printf("\t alias !! \n");
+			push_linked_list(linklist, cmdtbl[i-1][j-2], cmdtbl[i-1][j-1]);
 			break;
 		case 7: //unalias
 			break;

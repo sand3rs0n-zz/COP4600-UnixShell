@@ -10,6 +10,7 @@ error handling
 background proccessing
 wildcard matching
 file i/o infinite loops when not finished with a bye command.
+file i/o stores command so when you hit enter after finish it re-executes file
 
 
 Complete features-
