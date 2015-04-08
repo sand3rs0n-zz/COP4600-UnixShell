@@ -32,11 +32,9 @@ int getCommand() {
 	//initialize scanner and parser();
 	if (yyparse()) {
 		//understand_errors();
-		printf("got here bad");
 		return(0);
 	}
 	else {
-		printf("got here get");
 		return(1);
 	}
 }
@@ -120,7 +118,7 @@ int IO_redirect_less () {
 	return 0;
 }
 
-void IO_redirect_greater(FILE* f, const char* dest) {
+void IO_redirect_greater(FILE* f) {
 	int fd = open(f, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
 	if (fd != -1) {
 		dup2(fd, 2);
@@ -144,21 +142,11 @@ int string_equals (const char* string1, const char* string2) {
 }
 
 void setenv1() { 
-	char dest[1024];
-	strcpy(dest, "set ");
-	strcat(dest, cmdtbl[i-1][j-4]);
-	strcat(dest, " = ");
-	strcat(dest, cmdtbl[i-1][j-3]);
 	if (string_equals(cmdtbl[i-1][j-2], "greater")) {
-		IO_redirect_greater(cmdtbl[i-1][j-1], dest);
+		IO_redirect_greater(cmdtbl[i-1][j-1]);
 		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
 		printf("\t set %s = %s!! \n", cmdtbl[i-1][j-4], cmdtbl[i-1][j-3]);
 	}
-	/*else if (string_equals(cmdtbl[i-1][j-2], "less")) {
-		IO_redirect_less(cmdtbl[i-1][j-1]);
-		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
-		printf("\t set %s = %s!! \n", cmdtbl[i-1][j-4], cmdtbl[i-1][j-3]);
-	}*/
 	else {
 		printf("%s\n", cmdtbl[i-1][j-2]);
 		setenv(cmdtbl[i-1][j-2], cmdtbl[i-1][j-1], 1);
@@ -169,7 +157,6 @@ void setenv1() {
 void do_it() {
 	switch (command) {
 		case 1: //setenv
-			printf("gothere switch");
 			setenv1();
 			break;
 		case 2: //printenv
@@ -209,7 +196,6 @@ void do_it() {
 
 void processCommand() {
 	if (command) {
-		printf("got here process");	
 		do_it();
 	}
 	else 
@@ -229,7 +215,6 @@ int main(int argc, char* argv[], char **envp) {
 		//Case: BYE exit();
 		//Case: ERRORS recover_from_errors();
 		case 1:
-			printf("got here main");
 			processCommand();
 		};
 	}

@@ -16,8 +16,6 @@ void free_linked_list(linked_list *linkedlist) {
 		current_node = current_node->next;
 	} 
 	free(current_node);
-
-	// free(linkedlist);
 }
 
 void push_linked_list(linked_list *linkedlist, char *name, char *data) {

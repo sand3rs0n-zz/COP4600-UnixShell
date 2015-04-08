@@ -49,7 +49,6 @@ read_case:
 
 setenv_case:
 	SETENV VARIABLE arguments {
-		printf("got here case");
 		command = 1;
 		j = 0;
 		const char* name = $2;
@@ -174,6 +173,13 @@ variable_case:
 	VARIABLE {
 	char *expand = value_from_list(linklist, $1);
 	printf("%s\n", expand);
+
+	const char* path = getenv("PWD");
+	char dest[100];
+	strcpy(dest, path);
+	strcat(dest, "/");
+	strcat(dest, expand);
+	execl(dest, expand, 0);
 };
 ls_case: 
 	LS {

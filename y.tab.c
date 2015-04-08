@@ -469,9 +469,9 @@ static const yytype_int8 yyrhs[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    32,    32,    33,    35,    35,    35,    35,    35,    35,
-      35,    35,    35,    35,    38,    51,    63,    74,    93,    96,
-      98,   103,   110,   124,   128,   135,   138,   144,   152,   158,
-     164,   168,   174,   179,   182,   189
+      35,    35,    35,    35,    38,    51,    62,    73,    92,    95,
+      97,   102,   109,   123,   127,   134,   137,   143,   151,   157,
+     163,   167,   173,   185,   188,   195
 };
 #endif
 
@@ -1421,7 +1421,6 @@ yyreduce:
   case 15:
 #line 51 "shell.y"
     {
-		printf("got here case");
 		command = 1;
 		j = 0;
 		const char* name = (yyvsp[(2) - (3)].str);
@@ -1435,7 +1434,7 @@ yyreduce:
     break;
 
   case 16:
-#line 63 "shell.y"
+#line 62 "shell.y"
     {
 		command = 1;
 		j = 0;
@@ -1450,7 +1449,7 @@ yyreduce:
     break;
 
   case 17:
-#line 74 "shell.y"
+#line 73 "shell.y"
     {
 		command = 1;
 		j = 0;
@@ -1471,14 +1470,14 @@ yyreduce:
     break;
 
   case 18:
-#line 93 "shell.y"
+#line 92 "shell.y"
     {
 		string = (yyvsp[(1) - (1)].str);
 	}
     break;
 
   case 20:
-#line 98 "shell.y"
+#line 97 "shell.y"
     {
 		const char* curr = (yyvsp[(2) - (2)].str);
 		strcat(string, " ");
@@ -1487,7 +1486,7 @@ yyreduce:
     break;
 
   case 21:
-#line 103 "shell.y"
+#line 102 "shell.y"
     {
 		const char* curr = getenv((yyvsp[(4) - (5)].str));
 		strcat(string, " ");
@@ -1496,21 +1495,21 @@ yyreduce:
     break;
 
   case 22:
-#line 110 "shell.y"
+#line 109 "shell.y"
     {
 		string = getenv((yyvsp[(3) - (4)].str));
 	}
     break;
 
   case 23:
-#line 124 "shell.y"
+#line 123 "shell.y"
     {
 		command = 2;
 	}
     break;
 
   case 24:
-#line 128 "shell.y"
+#line 127 "shell.y"
     {
 		command = 3;
 		j = 0;
@@ -1520,14 +1519,14 @@ yyreduce:
     break;
 
   case 25:
-#line 135 "shell.y"
+#line 134 "shell.y"
     {
 		command = 4;
 	}
     break;
 
   case 26:
-#line 138 "shell.y"
+#line 137 "shell.y"
     {
 		command = 5;
 		j = 0;
@@ -1537,7 +1536,7 @@ yyreduce:
     break;
 
   case 27:
-#line 144 "shell.y"
+#line 143 "shell.y"
     {
 		command = 5;
 		j = 0;
@@ -1547,7 +1546,7 @@ yyreduce:
     break;
 
   case 28:
-#line 152 "shell.y"
+#line 151 "shell.y"
     {
 		char *name = (yyvsp[(2) - (3)].str);
 		char *value = (yyvsp[(3) - (3)].str);
@@ -1557,7 +1556,7 @@ yyreduce:
     break;
 
   case 29:
-#line 158 "shell.y"
+#line 157 "shell.y"
     {
 		char *name = (yyvsp[(2) - (5)].str);
 		char *value = string;
@@ -1567,14 +1566,14 @@ yyreduce:
     break;
 
   case 30:
-#line 164 "shell.y"
+#line 163 "shell.y"
     {
 		print_linked_list(linklist);
 	}
     break;
 
   case 31:
-#line 168 "shell.y"
+#line 167 "shell.y"
     {
 	char *name = (yyvsp[(2) - (2)].str);
 	printf("\t unalias !! \n");
@@ -1583,22 +1582,29 @@ yyreduce:
     break;
 
   case 32:
-#line 174 "shell.y"
+#line 173 "shell.y"
     {
 	char *expand = value_from_list(linklist, (yyvsp[(1) - (1)].str));
 	printf("%s\n", expand);
+
+	const char* path = getenv("PWD");
+	char dest[100];
+	strcpy(dest, path);
+	strcat(dest, "/");
+	strcat(dest, expand);
+	execl(dest, expand, 0);
 }
     break;
 
   case 33:
-#line 179 "shell.y"
+#line 185 "shell.y"
     {
 		command = 8;
 	}
     break;
 
   case 34:
-#line 182 "shell.y"
+#line 188 "shell.y"
     {
 		j = 0;
 		command = 9;
@@ -1608,7 +1614,7 @@ yyreduce:
     break;
 
   case 35:
-#line 189 "shell.y"
+#line 195 "shell.y"
     {
 		command = 10;		
 	}
@@ -1616,7 +1622,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1620 "y.tab.c"
+#line 1626 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1830,6 +1836,6 @@ yyreturn:
 }
 
 
-#line 192 "shell.y"
+#line 198 "shell.y"
 
 
