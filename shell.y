@@ -159,12 +159,6 @@ alias_case:
 		j += 1;
 		i += 1;
 	}
-	|ALIAS VARIABLE CD {
-		char *name = $2;
-		char *value = "cd";
-		printf("\t alias !! \n");
-		push_linked_list(linklist, name, value);
-	}
 	| ALIAS VARIABLE QUOTE arguments QUOTE {
 		char *name = $2;
 		char *value = string;

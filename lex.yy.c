@@ -371,12 +371,12 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[56] =
     {   0,
-        0,    0,   19,   18,   17,   11,   12,    9,   15,   16,
-        9,    9,    9,    9,    9,    9,    9,    9,   13,   14,
-        9,    9,    9,    7,    9,    3,    9,    9,    9,    9,
-        2,    9,    9,    9,    9,    9,    9,    9,    9,    9,
-        1,    9,    9,    9,    9,    9,    4,    9,    9,    9,
-        8,    9,    5,    6,    0
+        0,    0,   19,   18,   17,   11,   12,   10,   15,   16,
+       10,   10,   10,   10,   10,   10,   10,   10,   13,   14,
+       10,   10,   10,    7,    9,    3,   10,   10,   10,   10,
+        2,   10,   10,   10,   10,   10,   10,   10,   10,   10,
+        1,   10,   10,   10,   10,   10,    4,   10,   10,   10,
+        8,   10,    5,    6,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -793,12 +793,12 @@ return UNALIAS;
 case 9:
 YY_RULE_SETUP
 #line 15 "shell.lex"
-{yylval.str = strdup(yytext); return VARIABLE; };
+return LS;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 16 "shell.lex"
-return LS;
+{yylval.str = strdup(yytext); return VARIABLE; };
 	YY_BREAK
 case 11:
 YY_RULE_SETUP

@@ -4,7 +4,6 @@ Korn-like Unix shell built in C for COP4600 Operating Systems term project
 Incomplete features-
 Handling an alias multi token infinite loop. Bus Error.
 Handling an alias of a pre-existing command.
-Executing an alias.
 CMD
 error handling
 background proccessing
@@ -20,6 +19,7 @@ Yacc file
 alias
 alias name word
 unalias name
+alias executes
 setenv variable word
 printenv
 unsetenv variable
