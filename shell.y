@@ -7,13 +7,15 @@
 #include <dirent.h>
 #include "linked_list.h"
 
-const char* string = "a";
+const char* string1 = "a";
+const char* string2 = "b";
 linked_list *linklist;
 int command = -1;
 const char* cmdtbl[100][100] = {"a"};
 int i = 0; //row
 int j = 0; //col
 int curr;
+const char* io = "";
 void yyerror(const char *s){
 	fprintf(stderr, "user error, quit being dumb: %s\n",s);
 }
@@ -25,7 +27,7 @@ int yywrap() {
 	char* str;
 	int num;
 }
-%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER BYE 
+%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER STAR QUESTION BYE 
 %token <str> VARIABLE 
 %%
 // Cmdline = cmdline PIPE Cmdline | CmdLine GT FINLENAME | CmdLine LT FILENAME | simpleCmd
@@ -35,10 +37,10 @@ command:
 read_case|setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|ls_case|bye_case;
 
 read_case:
-	LESS VARIABLE {
+	LESS arguments {
 		j = 0;
 		command = 11;
-		const char* file = $2;
+		const char* file = string1;
 		const char* io = "greater";
 		cmdtbl[i][j] = io;
 		j += 1;
@@ -49,11 +51,11 @@ read_case:
 
 setenv_case:
 	SETENV VARIABLE arguments {
-		printf("got here case");
 		command = 1;
 		j = 0;
 		const char* name = $2;
-		const char* value = string;
+		const char* value = string1;
+		printf("%s    %s\n", name, value);
 		cmdtbl[i][j] = name;
 		j += 1;
 		cmdtbl[i][j] = value;
@@ -64,20 +66,19 @@ setenv_case:
 		command = 1;
 		j = 0;
 		const char* name = $2;
-		const char* value = string;
+		const char* value = string1;
 		cmdtbl[i][j] = name;
 		j += 1;
 		cmdtbl[i][j] = value;
 		j += 1;
 		i += 1;
 	};
-	| SETENV VARIABLE arguments GREATER VARIABLE {
+	| SETENV VARIABLE arguments io_redirection {
 		command = 1;
 		j = 0;
 		const char* name = $2;
-		const char* value = string;
-		const char* io = "greater";
-		const char* file = $5;
+		const char* value = string1;
+		const char* file = string2;
 		cmdtbl[i][j] = name;
 		j += 1;
 		cmdtbl[i][j] = value;
@@ -91,60 +92,211 @@ setenv_case:
 
 arguments:
 	VARIABLE {
-		string = $1;
+		string1 = $1;
 	};
 	| env_expansion;
-	//| io_redirection;
 	| arguments VARIABLE {
 		const char* curr = $2;
-		strcat(string, " ");
-		strcat(string, curr);
+		strcat(string1, " ");
+		strcat(string1, curr);
 	};
 	| arguments DOLLAR OCURL VARIABLE ECURL {
 		const char* curr = getenv($4);
-		strcat(string, " ");
-		strcat(string, curr);
+		strcat(string1, " ");
+		strcat(string1, curr);
 	};
+	| STAR VARIABLE {
+		DIR *d;
+		struct dirent *dir;
+		d = opendir(".");
+		int works;
+		const char* strIn = "a";
+		int len;
+		const char* strOut;
+		strIn = $2;
+		len = strlen($2);
+		if(d) {
+			while ((dir = readdir(d)) != NULL) {
+				works = 1;
+				strOut = dir->d_name;
+				int outLen = strlen(strOut);
+				int i;
+				for (i = len; i > 0; i--) {
+					if (strOut[outLen] != strIn[i]) {
+						works = 0;
+						break;
+					}
+					outLen--;
+				}
+				if (works == 1) {
+					string1 = strOut;
+				}
+			}
+		closedir(d);
+		}		
+	};
+	| VARIABLE STAR {
+		DIR *d;
+		struct dirent *dir;
+		d = opendir(".");
+		int works;
+		const char* strIn = "a";
+		int len;
+		const char* strOut;
+		strIn = $1;
+		len = strlen($1);
+		if(d) {
+			while ((dir = readdir(d)) != NULL) {
+				works = 1;
+				strOut = dir->d_name;
+				int i;
+				for (i = 0; i < len; i++) {
+					if (strOut[i] != strIn[i]) {
+						works = 0;
+						break;
+					}
+				}
+				if (works == 1) {
+					string1 = strOut;
+				}
+			}
+		closedir(d);
+		}		
+	};
+	| QUESTION VARIABLE {
+	DIR *d;
+		struct dirent *dir;
+		d = opendir(".");
+		int works;
+		const char* strIn = "a";
+		int len;
+		const char* strOut;
+		strIn = $2;
+		len = strlen($2);
+		if(d) {
+			while ((dir = readdir(d)) != NULL) {
+				works = 1;
+				strOut = dir->d_name;
+				int outLen = strlen(strOut);
+				int i;
+				for (i = len; i > 0; i--) {
+					if (strOut[outLen] != strIn[i]) {
+						works = 0;
+						break;
+					}
+					outLen--;
+				}
+				if (works == 1 && outLen == 1) {
+					string1 = strOut;
+				}
+			}
+		closedir(d);
+		}		
+	};
+	| VARIABLE QUESTION {
+		DIR *d;
+		struct dirent *dir;
+		d = opendir(".");
+		int works;
+		const char* strIn = "a";
+		int len;
+		const char* strOut;
+		strIn = $1;
+		len = strlen($1);
+		int outlen;
+		if(d) {
+			while ((dir = readdir(d)) != NULL) {
+				works = 1;
+				strOut = dir->d_name;
+				outlen = strlen(strOut);
+				if (outlen - len != 1) {
+					works = 0;
+				}
+				int i;
+				for (i = 0; i < len; i++) {
+					if (strOut[i] != strIn[i]) {
+						works = 0;
+						break;
+					}
+				}
+				if (works == 1) {
+					string1 = strOut;
+				}
+			}
+		closedir(d);
+		}
+	};
+
+
 
 env_expansion:
 	DOLLAR OCURL VARIABLE ECURL {
-		string = getenv($3);
+		string1 = getenv($3);
 	};
 
-/*io_redirection:
-	IO VARIABLE {
+io_redirection:
 	LESS VARIABLE {
-
+		string2 = $2;
+		io = "less";
 	};
 	| GREATER VARIABLE {
-	
-	};*/
+		string2 = $2;
+		io = "greater";
+	};
 	
 printenv_case:
 	PRINTENV {
 		command = 2;
 	};
+	| PRINTENV io_redirection {
+		command = 2;
+		j = 0;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = string2;
+		j += 1;
+		i += 1;
+	};
 unsetenv_case:
 	UNSETENV VARIABLE {
 		command = 3;
 		j = 0;
+		const char* name = $2;
+		cmdtbl[i][j] = name;
+		j += 1;
+		i += 1;
+	};
+	| UNSETENV VARIABLE io_redirection {
+		command = 3;
+		j = 0;
 		cmdtbl[i][j] = $2;
+		j += 1;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = string2;
+		j += 1;
 		i += 1;
 	};
 cd_case:
 	CD {
 		command = 4;
-	};
-	| CD VARIABLE {
-		command = 5;
-		j = 0;
-		cmdtbl[i][j] = $2;
-		i += 1; 
-	};
+	};	
 	| CD arguments {
 		command = 5;
 		j = 0;
-		cmdtbl[i][j] = string;
+		cmdtbl[i][j] = string1;
+		j += 1;
+		i += 1;
+	};
+	| CD arguments io_redirection {
+		command = 5;
+		j = 0;
+		cmdtbl[i][j] = string1;
+		j += 1;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = string2;
+		j += 1;
 		i += 1;
 	};
 		 
@@ -168,12 +320,25 @@ ls_case:
 	LS {
 		command = 8;
 	};
-	| LS VARIABLE {
+	| LS arguments {
 		j = 0;
 		command = 9;
-		cmdtbl [i][j] = $2;
+		cmdtbl[i][j] = string1;
+		j += 1;
 		i += 1; 
 	};
+	| LS arguments io_redirection {
+		j = 0;
+		command = 9;
+		cmdtbl[i][j] = string1;
+		j += 1;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = string2;
+		j += 1;
+		i += 1; 
+	};
+		
 bye_case:
 	BYE {
 		command = 10;		
