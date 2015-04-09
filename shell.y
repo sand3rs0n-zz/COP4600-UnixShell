@@ -159,6 +159,12 @@ alias_case:
 		j += 1;
 		i += 1;
 	}
+	| ALIAS VARIABLE CD {
+		char *name = $2;
+		char *value = "cd";
+		printf("\t alias !! \n");
+		push_linked_list(linklist, name, value);
+	}
 	| ALIAS VARIABLE QUOTE arguments QUOTE {
 		char *name = $2;
 		char *value = string;
@@ -177,38 +183,43 @@ unalias_case:
 variable_case:
 	VARIABLE {
 	char *expand = value_from_list(linklist, $1);
-	printf("%s\n", expand);
-	int mypipe[2]; //pipe with two ends, read and write
-	pid_t p;
-	int status, wpid;
-	pipe(mypipe); //creates pipe
-	p = fork();
-	if (p < 0) {
-		perror("failed to fork");
-	}
-	else if (p == 0) {
-		FILE *f;
-	f = fopen("alias.txt", "w");	
-	fprintf(f, "%s\n%s", expand, "bye");
-		fclose(f);
+	command = 30;
+	if(equals("Does not Exist", expand)) {
+		perror("Does not Exist");
+	} else {
 
-	f = fopen("alias.txt", "r");	
-	int fd = fileno(f);
-	dup2(fd, fileno(stdin));
-		fclose(f);
-	const char* path = getenv("PWD");
-	char dest[100];
-	strcpy(dest, path);
-	strcat(dest, "/");
-	strcat(dest, "alias.txt");
-	execl(dest, "alias.txt", 0);
-	}
-	else {
-		while ((wpid = wait(&status)) > 0) {
-			//
+	printf("%s\n", expand);
+	/*
+		int mypipe[2]; //pipe with two ends, read and write
+		pid_t p;
+		int status, wpid;
+		pipe(mypipe); //creates pipe
+		p = fork();
+		if (p < 0) {
+			perror("failed to fork");
 		}
+		else if (p == 0) {
+			FILE *f;
+			f = fopen("alias.txt", "w");	
+			fprintf(f, "%s\n%s", expand, "bye");
+			fclose(f);
+			f = fopen("alias.txt", "r");	
+			int fd = fileno(f);
+			dup2(fd, fileno(stdin));
+			fclose(f);
+			const char* path = getenv("PWD");
+			char dest[100];
+			strcpy(dest, path);
+			strcat(dest, "/");
+			strcat(dest, "alias.txt");
+			execl(dest, "alias.txt", 0);
+			command = 10;
+		} else {
+			while ((wpid = wait(&status)) > 0) {
+				//
+			}
+		}*/
 	}
-	return 0;
 };
 ls_case: 
 	LS {
