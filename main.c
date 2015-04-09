@@ -32,13 +32,9 @@ int getCommand() {
 	//initialize scanner and parser();
 	if (yyparse()) {
 		//understand_errors();
-		printf("got here bad");
-		return(0);
+		return 0;
 	}
-	else {
-		printf("got here get");
-		return(1);
-	}
+	return 1;
 }
 
 void execute_it() {
@@ -69,25 +65,55 @@ void ls_dir() {
 	struct dirent *dir;
 	d = opendir(".");
 	int works;
-	const char* strIn = cmdtbl[i-1][j];
-	int len = strlen(cmdtbl[i-1][j]);
+	const char* strIn = "a";
+	int len;
 	char* strOut;
-	if(d) {
-		while ((dir = readdir(d)) != NULL) {
-			works = 1;
-			strOut = dir->d_name;
-			int i;
-			for (i = 0; i < len; i++) {
-				if (strIn[i] != strOut[i]) {
-					works = 0;
-					break;
+	if (j >= 2) {
+		if (string_equals(cmdtbl[i-1][j-2], "greater")) {		
+			IO_redirect_greater(cmdtbl[i-1][j-1]);
+			strIn = cmdtbl[i-1][j-3];
+			len = strlen(cmdtbl[i-1][j-3]);
+			if(d) {
+				while ((dir = readdir(d)) != NULL) {
+					works = 1;
+					strOut = dir->d_name;
+					int i;
+					for (i = 0; i < len; i++) {
+						if (strIn[i] != strOut[i]) {
+							works = 0;
+							break;
+						}
+					}
+					if (works == 1)
+						printf("%s\n", dir->d_name);
 				}
+			closedir(d);
 			}
-			if (works == 1)
-				printf("%s\n", dir->d_name);
 		}
-		closedir(d);
+		else if (string_equals(cmdtbl[i-1][j-2], "less")) {
+			perror("Can't read from file in ls");
+		}
 	}
+	else {
+		strIn = cmdtbl[i-1][j-1];
+		len = strlen(cmdtbl[i-1][j-1]);
+		if(d) {
+			while ((dir = readdir(d)) != NULL) {
+				works = 1;
+				strOut = dir->d_name;
+				int i;
+				for (i = 0; i < len; i++) {
+					if (strIn[i] != strOut[i]) {
+						works = 0;
+						break;
+					}
+				}
+				if (works == 1)
+					printf("%s\n", dir->d_name);
+			}
+		closedir(d);
+		}
+	}	
 }
 
 int IO_redirect_less () {
@@ -101,7 +127,6 @@ int IO_redirect_less () {
 		perror("failed to fork");
 	}
 	else if (p == 0) {
-		//do allllll
 		int fd = open(cmdtbl[i-1][j-1], O_RDONLY);
 		dup2(fd, STDIN_FILENO);
 		close(fd);
@@ -111,6 +136,7 @@ int IO_redirect_less () {
 		strcat(dest, "/");
 		strcat(dest, cmdtbl[i-1][j-1]);
 		execl(dest, cmdtbl[i-1][j-1], 0);
+		perror("error in the file");
 	}
 	else {
 		while ((wpid = wait(&status)) > 0) {
@@ -120,7 +146,7 @@ int IO_redirect_less () {
 	return 0;
 }
 
-void IO_redirect_greater(FILE* f, const char* dest) {
+void IO_redirect_greater(FILE* f) {
 	int fd = open(f, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
 	if (fd != -1) {
 		dup2(fd, 2);
@@ -143,22 +169,15 @@ int string_equals (const char* string1, const char* string2) {
 	return ret;
 }
 
-void setenv1() { 
-	char dest[1024];
-	strcpy(dest, "set ");
-	strcat(dest, cmdtbl[i-1][j-4]);
-	strcat(dest, " = ");
-	strcat(dest, cmdtbl[i-1][j-3]);
+void setenv1 () { 
 	if (string_equals(cmdtbl[i-1][j-2], "greater")) {
-		IO_redirect_greater(cmdtbl[i-1][j-1], dest);
+		IO_redirect_greater(cmdtbl[i-1][j-1]);
 		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
 		printf("\t set %s = %s!! \n", cmdtbl[i-1][j-4], cmdtbl[i-1][j-3]);
 	}
-	/*else if (string_equals(cmdtbl[i-1][j-2], "less")) {
-		IO_redirect_less(cmdtbl[i-1][j-1]);
-		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
-		printf("\t set %s = %s!! \n", cmdtbl[i-1][j-4], cmdtbl[i-1][j-3]);
-	}*/
+	else if (string_equals(cmdtbl[i-1][j-2], "less")) {
+		perror("Can't read from file with setenv");
+	}
 	else {
 		printf("%s\n", cmdtbl[i-1][j-2]);
 		setenv(cmdtbl[i-1][j-2], cmdtbl[i-1][j-1], 1);
@@ -166,26 +185,70 @@ void setenv1() {
 	}
 }
 
+void cd () {
+	if (j >= 2) {
+		if (string_equals(cmdtbl[i-1][j-2], "greater")) {
+			IO_redirect_greater(cmdtbl[i-1][j-1]);
+			int a = chdir(cmdtbl[i-1][j-3]);
+			if (a < 0) {
+			perror("Not a directory");
+			}
+		}
+		else if (string_equals(cmdtbl[i-1][j-2], "less")) {
+			perror("Can't read from file with cd");
+		}
+	}
+	else {
+		int a = chdir(cmdtbl[i-1][j-1]);
+		if (a < 0) {
+			perror("Not a directory");
+		}
+	}
+}
+
+void unsetenv1 () {
+	if (j >= 2) {
+		if (string_equals(cmdtbl[i-1][j-2], "greater")) {
+			IO_redirect_greater(cmdtbl[i-1][j-1]);
+			unsetenv(cmdtbl[i-1][j-3]);
+		}
+		else if (string_equals(cmdtbl[i-1][j-2], "less")) {
+			perror("Can't read from file with unsetenv");
+		}
+	}	
+	else {
+		unsetenv(cmdtbl[i-1][j-1]);
+	}
+}
+
+void printenv1 () {
+	if (j >= 2) {
+		if (string_equals(cmdtbl[i-1][j-2], "greater")) {
+			IO_redirect_greater(cmdtbl[i-1][j-1]);
+		}
+		else if (string_equals(cmdtbl[i-1][j-2], "less")) {
+			perror("Can't read from file with printenv");
+		}
+	}
+	printenv();
+}
+
 void do_it() {
 	switch (command) {
 		case 1: //setenv
-			printf("gothere switch");
 			setenv1();
 			break;
 		case 2: //printenv
-			printenv();
+			printenv1();
 			break;
 		case 3: //unsetenv
-			unsetenv(cmdtbl[i-1][j]);
-			printf ("\t unset !!\n"); 
+			unsetenv1();
 			break;
 		case 4:	//cd home
-			printf("\t cd !! \n");
 			chdir(getenv("HOME"));
 			break;
 		case 5: //cd dir
-			printf("\t cd %s\n", cmdtbl[i-1][j]);
-			chdir(cmdtbl[i-1][j]);	
+			cd();	
 			break;
 		case 6: //alias
 			break;
@@ -208,8 +271,7 @@ void do_it() {
 }
 
 void processCommand() {
-	if (command) {
-		printf("got here process");	
+	if (command < 12 && command > 0) {
 		do_it();
 	}
 	else 
@@ -219,18 +281,21 @@ void processCommand() {
 int main(int argc, char* argv[], char **envp) {
 	char line[256];
 	printf("\t\tWelcome to the Grand Illusion\n");
-	//shell initialize
+	shellInit();
 	size_t size = PATH_MAX;
 	char buf[PATH_MAX] = "";
 	while(1) {
 		getcwd(buf, size);
 		printf("%s>>", buf);
-		switch (getCommand()) {
-		//Case: BYE exit();
-		//Case: ERRORS recover_from_errors();
-		case 1:
-			printf("got here main");
-			processCommand();
+		int c = getCommand();
+		switch (c) { 
+			//Case: BYE exit();
+			//case 0:  recover_from_errors();
+			case 1: //no errors
+				processCommand();
+				break;
+			
 		};
 	}
+	return 0;
 }
