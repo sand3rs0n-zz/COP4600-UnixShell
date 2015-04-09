@@ -90,7 +90,25 @@ setenv_case:
 	};
 
 arguments:
-	VARIABLE {
+	SETENV {
+		string = "setenv";
+	};
+	| PRINTENV {
+		string = "printenv";
+	};
+	| UNSETENV {
+		string = "unsetenv";
+	};
+	| CD {
+		string = "cd";
+	};
+	| UNALIAS {
+		string = "unalias";
+	};
+	| LS {
+		string = "ls";
+	};
+	| VARIABLE {
 		string = $1;
 	};
 	| env_expansion;
@@ -153,6 +171,16 @@ alias_case:
 		command = 6;
 		char *name = $2;
 		char *value = $3;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		i += 1;
+	}
+	| ALIAS VARIABLE arguments {
+		command = 6;
+		char *name = $2;
+		char *value = string;
 		cmdtbl[i][j] = name;
 		j += 1;
 		cmdtbl[i][j] = value;
