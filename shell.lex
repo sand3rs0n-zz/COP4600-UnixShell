@@ -23,4 +23,5 @@ ls return LS;
 \* return STAR;
 \? return QUESTION;
 \n return -1;
+<<EOF>> return ENDF;
 %%
