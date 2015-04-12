@@ -7,7 +7,6 @@
 #include <dirent.h>
 #include "linked_list.h"
 
-extern FILE *yyin;
 const char* string1 = "a";
 const char* string2 = "b";
 linked_list *linklist;
@@ -93,22 +92,22 @@ setenv_case:
 
 arguments:
 	SETENV {
-		string = "setenv";
+		string1 = "setenv";
 	};
 	| PRINTENV {
-		string = "printenv";
+		string1 = "printenv";
 	};
 	| UNSETENV {
-		string = "unsetenv";
+		string1 = "unsetenv";
 	};
 	| CD {
-		string = "cd";
+		string1 = "cd";
 	};
 	| UNALIAS {
-		string = "unalias";
+		string1 = "unalias";
 	};
 	| LS {
-		string = "ls";
+		string1 = "ls";
 	};
 	| VARIABLE {
 		string1 = $1;
@@ -333,7 +332,7 @@ alias_case:
 	| ALIAS VARIABLE arguments {
 		command = 6;
 		char *name = $2;
-		char *value = string;
+		char *value = string1;
 		cmdtbl[i][j] = name;
 		j += 1;
 		cmdtbl[i][j] = value;
@@ -348,7 +347,7 @@ alias_case:
 	}
 	| ALIAS VARIABLE QUOTE arguments QUOTE {
 		char *name = $2;
-		char *value = string;
+		char *value = string1;
 		printf("\t alias !! \n");
 		push_linked_list(linklist, name, value);
 	}
@@ -370,8 +369,7 @@ variable_case:
 	} else {
 
 	printf("%s\n", expand);
-	system(expand);
-	/*
+	
 		int mypipe[2]; //pipe with two ends, read and write
 		pid_t p;
 		int status, wpid;
@@ -395,12 +393,11 @@ variable_case:
 			strcat(dest, "/");
 			strcat(dest, "alias.txt");
 			execl(dest, "alias.txt", 0);
-			command = 10;
 		} else {
 			while ((wpid = wait(&status)) > 0) {
 				//
 			}
-		}*/
+		}
 	}
 };
 ls_case: 

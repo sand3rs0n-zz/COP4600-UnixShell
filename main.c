@@ -62,6 +62,17 @@ void ls() {
 		}
 }
 
+void IO_redirect_greater(FILE* f) {
+	int fd = open(f, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
+	if (fd != -1) {
+		dup2(fd, 2);
+	}
+	else {
+		perror(f);
+	}
+	close(f);
+}
+
 void ls_dir() {
 	DIR *d;
 	struct dirent *dir;
@@ -148,16 +159,6 @@ int IO_redirect_less () {
 	return 0;
 }
 
-void IO_redirect_greater(FILE* f) {
-	int fd = open(f, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
-	if (fd != -1) {
-		dup2(fd, 2);
-	}
-	else {
-		perror(f);
-	}
-	close(f);
-}
 
 int string_equals (const char* string1, const char* string2) {
 	int ret = 1;

@@ -54,8 +54,10 @@
      ECURL = 270,
      LESS = 271,
      GREATER = 272,
-     BYE = 273,
-     VARIABLE = 274
+     STAR = 273,
+     QUESTION = 274,
+     BYE = 275,
+     VARIABLE = 276
    };
 #endif
 /* Tokens.  */
@@ -74,21 +76,23 @@
 #define ECURL 270
 #define LESS 271
 #define GREATER 272
-#define BYE 273
-#define VARIABLE 274
+#define STAR 273
+#define QUESTION 274
+#define BYE 275
+#define VARIABLE 276
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 25 "shell.y"
+#line 26 "shell.y"
 {
 	char* str;
 	int num;
 }
 /* Line 1529 of yacc.c.  */
-#line 92 "y.tab.h"
+#line 96 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

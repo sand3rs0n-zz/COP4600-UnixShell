@@ -4,13 +4,11 @@ Korn-like Unix shell built in C for COP4600 Operating Systems term project
 Incomplete features-
 Handling an alias multi token infinite loop. Bus Error.
 Handling an alias of a pre-existing command. complex cases dont work.
-alias executing
 error handling a handful of cases
 CMD
 background proccessing
-wildcard matching
-file i/o infinite loops when not finished with a bye command.
 file i/o stores command so when you hit enter after finish it re-executes file
+alias results are in separate process
 
 
 Complete features-
@@ -31,3 +29,5 @@ metacharacters
 white space
 multi token arguments
 some error handling
+wildcard matching
+alias executes
