@@ -8,9 +8,8 @@ Incomplete features and bugs-
 Handling an alias multi token infinite loop. Bus Error.
 Handling an alias of a pre-existing command. complex cases dont work.
 alias results are in a separate process.
-alias only works when very first word is alias
+alias only works when very first word is the creted alias
 error handling a handful of cases
-background proccessing
 | piping to execute. Currently parses string but doesn't execute commands after first one
 multiple | piping cases not handled
 file i/o stores command so when you hit enter after finish it re-executes file
@@ -40,6 +39,7 @@ some error handling
 wildcard matching
 alias executes
 | piping parses string and executes first command only
+background processing. We think this is complete. We arent sure.
 
 
 
