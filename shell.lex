@@ -22,6 +22,7 @@ ls return LS;
 \> return GREATER;
 \* return STAR;
 \? return QUESTION;
+\& return AMPER;
 \n return -1;
 <<EOF>> return ENDF;
 %%
