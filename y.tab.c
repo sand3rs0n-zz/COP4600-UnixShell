@@ -1738,7 +1738,7 @@ yyreduce:
 		}
 		else if (p == 0) {
 			FILE *f;
-			f = fopen("alias.txt", "w");	
+			f = fopen("piping.txt", "w");	
 			fprintf(f, "%s\n%s", string1, "bye");
 			fclose(f);
 			f = fopen("piping.txt", "r");	
@@ -1780,7 +1780,7 @@ yyreduce:
 		}
 		else if (p == 0) {
 			FILE *f;
-			f = fopen("alias.txt", "w");	
+			f = fopen("piping.txt", "w");	
 			fprintf(f, "%s\n%s", string1, "bye");
 			fclose(f);
 			f = fopen("piping.txt", "r");	

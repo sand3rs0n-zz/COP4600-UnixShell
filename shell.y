@@ -17,7 +17,7 @@ int j = 0; //col
 int curr;
 const char* io = "";
 void yyerror(const char *s){
-	fprintf(stderr, "user error, quit being dumb: %s\n",s);
+	fprintf(stderr, "error: %s\n",s);
 }
 int yywrap() {
 	return 1;
@@ -260,7 +260,7 @@ piping:
 		}
 		else if (p == 0) {
 			FILE *f;
-			f = fopen("alias.txt", "w");	
+			f = fopen("piping.txt", "w");	
 			fprintf(f, "%s\n%s", string1, "bye");
 			fclose(f);
 			f = fopen("piping.txt", "r");	
@@ -294,7 +294,7 @@ piping:
 		}
 		else if (p == 0) {
 			FILE *f;
-			f = fopen("alias.txt", "w");	
+			f = fopen("piping.txt", "w");	
 			fprintf(f, "%s\n%s", string1, "bye");
 			fclose(f);
 			f = fopen("piping.txt", "r");	
@@ -333,6 +333,9 @@ printenv_case:
 	PRINTENV {
 		command = 2;
 	};
+	| PRINTENV PIPING {
+		command = 2;
+	}
 	| PRINTENV io_redirection {
 		command = 2;
 		j = 0;

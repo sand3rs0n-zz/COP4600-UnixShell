@@ -10,8 +10,9 @@ Handling an alias of a pre-existing command. complex cases dont work.
 alias results are in a separate process.
 alias only works when very first word is the creted alias
 error handling a handful of cases
-| piping to execute. Currently parses string but doesn't execute commands after first one
-multiple | piping cases not handled
+| piping has weird visual bug but works
+multiple | piping cases very buggy
+complex | piping also buggy
 file i/o stores command so when you hit enter after finish it re-executes file
 Weird bugs where it doesnt look like it worked but it does
 Clean, easy to read code
@@ -39,14 +40,17 @@ some error handling
 wildcard matching
 alias executes
 | piping parses string and executes first command only
-background processing. We think this is complete. We arent sure.
-
+| piping only works for base case: cd, ls, printenv
+background processing. Works for base case setenv, unsetenv,
+background process requires you to hit enter after it finishes to register.
 
 
 
 How to run
-type    make    command line, compiles and runs
+type    make    in command line, compiles and runs
 ignore warnings
 
 How to use File I/O
 < (filename here)
+
+If an error appears when you typed it with proper syntax, type it again. Some errors are false flags, and they require two inputs to work.
