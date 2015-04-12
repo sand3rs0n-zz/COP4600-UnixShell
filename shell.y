@@ -27,7 +27,7 @@ int yywrap() {
 	char* str;
 	int num;
 }
-%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER STAR QUESTION BYE 
+%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER STAR QUESTION ENDF BYE 
 %token <str> VARIABLE 
 %%
 // Cmdline = cmdline PIPE Cmdline | CmdLine GT FINLENAME | CmdLine LT FILENAME | simpleCmd
@@ -41,7 +41,7 @@ read_case:
 		j = 0;
 		command = 11;
 		const char* file = string1;
-		const char* io = "greater";
+		const char* io = "less";
 		cmdtbl[i][j] = io;
 		j += 1;
 		cmdtbl[i][j] = file;
@@ -50,12 +50,11 @@ read_case:
 	};
 
 setenv_case:
-	SETENV VARIABLE arguments {
+	SETENV VARIABLE VARIABLE {
 		command = 1;
 		j = 0;
 		const char* name = $2;
-		const char* value = string1;
-		printf("%s    %s\n", name, value);
+		const char* value = $3;
 		cmdtbl[i][j] = name;
 		j += 1;
 		cmdtbl[i][j] = value;
@@ -340,7 +339,10 @@ ls_case:
 	};
 		
 bye_case:
-	BYE {
+	ENDF {
+		exit(0);
+	};
+	| BYE {
 		command = 10;		
 	};
 %%
