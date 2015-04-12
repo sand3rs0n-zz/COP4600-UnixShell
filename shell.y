@@ -27,11 +27,9 @@ int yywrap() {
 	char* str;
 	int num;
 }
-%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER STAR QUESTION PIPING ENDF BYE 
+%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER STAR QUESTION PIPING AMPER ENDF BYE
 %token <str> VARIABLE 
-%%
-// Cmdline = cmdline PIPE Cmdline | CmdLine GT FINLENAME | CmdLine LT FILENAME | simpleCmd
-commands:
+%%commands:
 | commands command;
 command:
 read_case|setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|variable_case|ls_case|bye_case;
@@ -58,6 +56,19 @@ setenv_case:
 		cmdtbl[i][j] = name;
 		j += 1;
 		cmdtbl[i][j] = value;
+		j += 1;
+		i += 1;
+	};
+	| SETENV VARIABLE VARIABLE AMPER {
+		command = 1;
+		j = 0;
+		const char* name = $2;
+		const char* value = $3;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		cmdtbl[i][j] = "&";
 		j += 1;
 		i += 1;
 	};
@@ -351,6 +362,16 @@ unsetenv_case:
 		j = 0;
 		const char* name = $2;
 		cmdtbl[i][j] = name;
+		j += 1;
+		i += 1;
+	};
+	| UNSETENV VARIABLE AMPER {
+		command = 3;
+		j = 0;
+		const char* name = $2;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = "&";
 		j += 1;
 		i += 1;
 	};

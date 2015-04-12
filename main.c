@@ -43,10 +43,52 @@ void execute_it() {
 	//build up pipeline using pipe and dup
 }
 
+int string_equals (const char* string1, const char* string2) {
+	int ret = 1;
+	int i;
+	for (i = 0; i < strlen(string1); i++) {
+		if (string1[i] != string2[i]) {
+			ret = 0;
+			break;
+		}
+	}
+	return ret;
+}
+
 void printenv() {
 	int i = 0;
 	while (environ[i]) {
 		printf("%s\n", environ[i++]);
+	}
+}
+
+void background() {
+	int child;
+	if ((child = fork()) == 0) {
+		do_it();
+	}
+	else {
+		if (string_equals(cmdtbl[i-1][j-1], "&")) {
+			wait(child);
+		}
+	}
+}
+
+void setenv1 () { 
+	if (string_equals(cmdtbl[i-1][j-1], "&")) {
+		cmdtbl[i-1][j-1] = "-";		
+		j -= 1;
+		background();
+	}
+	else if (string_equals(cmdtbl[i-1][j-2], "greater")) {
+		IO_redirect_greater(cmdtbl[i-1][j-1]);
+		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
+	}
+	else if (string_equals(cmdtbl[i-1][j-2], "less")) {
+		perror("Can't read from file with setenv");
+	}
+	else {
+		setenv(cmdtbl[i-1][j-2], cmdtbl[i-1][j-1], 1);
 	}
 }
 
@@ -157,6 +199,7 @@ int IO_redirect_less () {
 	return 0;
 }
 
+
 int string_equals (const char* string1, const char* string2) {
 	int ret = 1;
 	int i;
@@ -195,7 +238,7 @@ void cd () {
 			perror("Can't read from file with cd");
 		}
 	}
-	else {
+	else if (j == 2) {
 		int a = chdir(cmdtbl[i-1][j-1]);
 		if (a < 0) {
 			perror("Not a directory");
@@ -205,7 +248,12 @@ void cd () {
 
 void unsetenv1 () {
 	if (j >= 2) {
-		if (string_equals(cmdtbl[i-1][j-2], "greater")) {
+		if (string_equals(cmdtbl[i-1][j-1], "&")) {
+			cmdtbl[i-1][j-1] = "-";		
+			j -= 1;
+			background();
+		}
+		else if (string_equals(cmdtbl[i-1][j-2], "greater")) {
 			IO_redirect_greater(cmdtbl[i-1][j-1]);
 			unsetenv(cmdtbl[i-1][j-3]);
 		}
