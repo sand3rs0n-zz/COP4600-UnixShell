@@ -20,5 +20,7 @@ ls return LS;
 \} return ECURL;
 \< return LESS;
 \> return GREATER;
+\* return STAR;
+\? return QUESTION;
 \n return -1;
 %%
