@@ -183,7 +183,7 @@ void setenv1 () {
 }
 
 void cd () {
-	if (j >= 2) {
+	if (j == 4) {
 		if (string_equals(cmdtbl[i-1][j-2], "greater")) {
 			IO_redirect_greater(cmdtbl[i-1][j-1]);
 			int a = chdir(cmdtbl[i-1][j-3]);

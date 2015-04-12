@@ -16,5 +16,8 @@ main.c: main.c
 linked_list.c: linked_list.c
 	gcc	linked_list.c
 
+tarfile:
+	tar cvf COP4600Shell.tar main.c shell.y shell.lex linked_list.h linked_list.c Makefile README.md
+
 clean:
-	rm shell.exe mainc.o linked_list.o
+	rm shell.exe main.o linked_list.o pipe.o redirect.o

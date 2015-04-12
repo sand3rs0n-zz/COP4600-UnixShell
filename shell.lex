@@ -12,6 +12,7 @@ printenv return PRINTENV;
 unsetenv return UNSETENV;
 cd return CD;
 unalias return UNALIAS;
+\| return PIPING;
 ls return LS;
 [0-9a-zA-Z/\.]+ {yylval.str = strdup(yytext); return VARIABLE; };
 \" return QUOTE;

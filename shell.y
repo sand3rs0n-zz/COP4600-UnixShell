@@ -27,7 +27,7 @@ int yywrap() {
 	char* str;
 	int num;
 }
-%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER STAR QUESTION ENDF BYE 
+%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER STAR QUESTION PIPING ENDF BYE 
 %token <str> VARIABLE 
 %%
 // Cmdline = cmdline PIPE Cmdline | CmdLine GT FINLENAME | CmdLine LT FILENAME | simpleCmd
@@ -245,6 +245,74 @@ arguments:
 	};
 
 
+piping:
+	PIPING arguments{
+		command = 30;
+		printf(" remaining commands%s\n", string1);
+	
+		int mypipe[2]; //pipe with two ends, read and write
+		pid_t p;
+		int status, wpid;
+		pipe(mypipe); //creates pipe
+		p = fork();
+		if (p < 0) {
+			perror("failed to fork");
+		}
+		else if (p == 0) {
+			FILE *f;
+			f = fopen("alias.txt", "w");	
+			fprintf(f, "%s\n%s", string1, "bye");
+			fclose(f);
+			f = fopen("piping.txt", "r");	
+			int fd = fileno(f);
+			dup2(fd, fileno(stdin));
+			fclose(f);
+			const char* path = getenv("PWD");
+			char dest[100];
+			strcpy(dest, path);
+			strcat(dest, "/");
+			strcat(dest, "piping.txt");
+			execl(dest, "piping.txt", 0);
+		} else {
+			while ((wpid = wait(&status)) > 0) {
+				//
+			}
+		}
+	};
+	| PIPING {}
+	| PIPING arguments PIPING{
+		command = 30;
+		printf("remaining commands %s\n", string1);
+	
+		int mypipe[2]; //pipe with two ends, read and write
+		pid_t p;
+		int status, wpid;
+		pipe(mypipe); //creates pipe
+		p = fork();
+		if (p < 0) {
+			perror("failed to fork");
+		}
+		else if (p == 0) {
+			FILE *f;
+			f = fopen("alias.txt", "w");	
+			fprintf(f, "%s\n%s", string1, "bye");
+			fclose(f);
+			f = fopen("piping.txt", "r");	
+			int fd = fileno(f);
+			dup2(fd, fileno(stdin));
+			fclose(f);
+			const char* path = getenv("PWD");
+			char dest[100];
+			strcpy(dest, path);
+			strcat(dest, "/");
+			strcat(dest, "piping.txt");
+			execl(dest, "piping.txt", 0);
+		} else {
+			while ((wpid = wait(&status)) > 0) {
+				//
+			}
+		}
+	}
 
 env_expansion:
 	DOLLAR OCURL VARIABLE ECURL {
@@ -297,7 +365,11 @@ unsetenv_case:
 cd_case:
 	CD {
 		command = 4;
-	};	
+	};
+	|CD piping{
+		command = 4;
+	};
+
 	| CD arguments {
 		command = 5;
 		j = 0;
@@ -380,7 +452,7 @@ variable_case:
 		else if (p == 0) {
 			FILE *f;
 			f = fopen("alias.txt", "w");	
-			fprintf(f, "%s\n%s", expand, "bye");
+			fprintf(f, "%s\n", expand);
 			fclose(f);
 			f = fopen("alias.txt", "r");	
 			int fd = fileno(f);
@@ -398,11 +470,15 @@ variable_case:
 			}
 		}
 	}
+	printf("\n");
 };
 ls_case: 
 	LS {
 		command = 8;
 	};
+	| LS PIPING {
+		command = 8;
+	}
 	| LS arguments {
 		j = 0;
 		command = 9;
