@@ -57,9 +57,10 @@
      STAR = 273,
      QUESTION = 274,
      PIPING = 275,
-     ENDF = 276,
-     BYE = 277,
-     VARIABLE = 278
+     AMPER = 276,
+     ENDF = 277,
+     BYE = 278,
+     VARIABLE = 279
    };
 #endif
 /* Tokens.  */
@@ -81,9 +82,10 @@
 #define STAR 273
 #define QUESTION 274
 #define PIPING 275
-#define ENDF 276
-#define BYE 277
-#define VARIABLE 278
+#define AMPER 276
+#define ENDF 277
+#define BYE 278
+#define VARIABLE 279
 
 
 
@@ -96,7 +98,7 @@ typedef union YYSTYPE
 	int num;
 }
 /* Line 1529 of yacc.c.  */
-#line 100 "y.tab.h"
+#line 102 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

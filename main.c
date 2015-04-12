@@ -16,6 +16,7 @@ extern int command;
 extern const char* cmdtbl[100][100];
 extern int i, j;
 extern char** environ;
+void do_it();
 
 void shellInit() {
 	linklist = create_linked_list();
@@ -41,6 +42,17 @@ int getCommand() {
 
 void execute_it() {
 	//build up pipeline using pipe and dup
+}
+
+void IO_redirect_greater(const char* f) {
+	int fd = open(f, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
+	if (fd != -1) {
+		dup2(fd, 2);
+	}
+	else {
+		perror(f);
+	}
+	close(f);
 }
 
 int string_equals (const char* string1, const char* string2) {
@@ -102,17 +114,6 @@ void ls() {
 			}
 			closedir(d);
 		}
-}
-
-void IO_redirect_greater(const char* f) {
-	int fd = open(f, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
-	if (fd != -1) {
-		dup2(fd, 2);
-	}
-	else {
-		perror(f);
-	}
-	close(f);
 }
 
 void ls_dir() {
@@ -197,32 +198,6 @@ int IO_redirect_less () {
 		}
 	}
 	return 0;
-}
-
-
-int string_equals (const char* string1, const char* string2) {
-	int ret = 1;
-	int i;
-	for (i = 0; i < strlen(string1); i++) {
-		if (string1[i] != string2[i]) {
-			ret = 0;
-			break;
-		}
-	}
-	return ret;
-}
-
-void setenv1 () {
-	if (string_equals(cmdtbl[i-1][j-2], "greater")) {
-		IO_redirect_greater(cmdtbl[i-1][j-1]);
-		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
-	}
-	else if (string_equals(cmdtbl[i-1][j-2], "less")) {
-		perror("Can't read from file with setenv");
-	}
-	else {
-		setenv(cmdtbl[i-1][j-2], cmdtbl[i-1][j-1], 1);
-	}
 }
 
 void cd () {
