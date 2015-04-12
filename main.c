@@ -62,7 +62,7 @@ void ls() {
 		}
 }
 
-void IO_redirect_greater(FILE* f) {
+void IO_redirect_greater(const char* f) {
 	int fd = open(f, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
 	if (fd != -1) {
 		dup2(fd, 2);
@@ -130,7 +130,6 @@ void ls_dir() {
 }
 
 int IO_redirect_less () {
-	//FILE* f = fopen(cmdtbl[i-1][j-1], "r");
 	int mypipe[2]; //pipe with two ends, read and write
 	pid_t p;
 	int status, wpid;
@@ -149,7 +148,6 @@ int IO_redirect_less () {
 		strcat(dest, "/");
 		strcat(dest, cmdtbl[i-1][j-1]);
 		execl(dest, cmdtbl[i-1][j-1], 0);
-		perror("error in the file");
 	}
 	else {
 		while ((wpid = wait(&status)) > 0) {
@@ -158,7 +156,6 @@ int IO_redirect_less () {
 	}
 	return 0;
 }
-
 
 int string_equals (const char* string1, const char* string2) {
 	int ret = 1;
@@ -176,15 +173,12 @@ void setenv1 () {
 	if (string_equals(cmdtbl[i-1][j-2], "greater")) {
 		IO_redirect_greater(cmdtbl[i-1][j-1]);
 		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
-		printf("\t set %s = %s!! \n", cmdtbl[i-1][j-4], cmdtbl[i-1][j-3]);
 	}
 	else if (string_equals(cmdtbl[i-1][j-2], "less")) {
 		perror("Can't read from file with setenv");
 	}
 	else {
-		printf("%s\n", cmdtbl[i-1][j-2]);
 		setenv(cmdtbl[i-1][j-2], cmdtbl[i-1][j-1], 1);
-		printf("\t set %s = %s!! \n", cmdtbl[i-1][j-2], cmdtbl[i-1][j-1]);
 	}
 }
 
