@@ -1,318 +1,371 @@
+%{
 #include <stdio.h>
 #include <string.h>
-#include "y.tab.h"
 #include <stdlib.h>
-#include <unistd.h>
-#include <stddef.h>
 #include <limits.h>
-#include "linked_list.h"
+#include <sys/file.h> 
 #include <dirent.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+#include "linked_list.h"
 
-extern struct linked_list *linklist;
-extern int command;
-extern const char* cmdtbl[100][100];
-extern int i, j;
-extern char** environ;
-
-void shellInit() {
-	linklist = create_linked_list();
-	// init all variables.
-	// define (allocate storage) for some var/tables
-	//init all tables (e.g., alias table)
-	//get PATH environment variable (use getenv())
-	//get HOME env variable (also use getenv())
-	//disable anything that can kill your shell.
-	// (the shell should never die; only can be exit)
-	// do anything you feel should be done as init
+const char* string1 = "a";
+const char* string2 = "b";
+linked_list *linklist;
+int command = -1;
+const char* cmdtbl[100][100] = {"a"};
+int i = 0; //row
+int j = 0; //col
+int curr;
+const char* io = "";
+void yyerror(const char *s){
+	fprintf(stderr, "user error, quit being dumb: %s\n",s);
 }
-int getCommand() {
-	//initialize scanner and parser();
-	if (yyparse()) {
-		//understand_errors();
-		return 0;
-	}
+int yywrap() {
 	return 1;
 }
-
-void execute_it() {
-	//build up pipeline using pipe and dup
+%}
+%union {
+	char* str;
+	int num;
 }
+%token NUMBER STATE SETENV PRINTENV UNSETENV CD ALIAS UNALIAS LS QUOTE DOLLAR OCURL ECURL LESS GREATER STAR QUESTION AMPER ENDF BYE 
+%token <str> VARIABLE 
+%%
+// Cmdline = cmdline PIPE Cmdline | CmdLine GT FINLENAME | CmdLine LT FILENAME | simpleCmd
+commands:
+| commands command;
+command:
+read_case|setenv_case|printenv_case|unsetenv_case|cd_case|alias_case|unalias_case|ls_case|bye_case;
 
-int string_equals (const char* string1, const char* string2) {
-	int ret = 1;
-	int i;
-	for (i = 0; i < strlen(string1); i++) {
-		if (string1[i] != string2[i]) {
-			ret = 0;
-			break;
-		}
-	}
-	return ret;
-}
+read_case:
+	LESS arguments {
+		j = 0;
+		command = 11;
+		const char* file = string1;
+		const char* io = "less";
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = file;
+		j += 1;
+		i += 1;
+	};
 
-void printenv() {
-	int i = 0;
-	while (environ[i]) {
-		printf("%s\n", environ[i++]);
-	}
-}
+setenv_case:
+	SETENV VARIABLE VARIABLE {
+		command = 1;
+		j = 0;
+		const char* name = $2;
+		const char* value = $3;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		i += 1;
+	};
+	| SETENV VARIABLE VARIABLE AMPER {
+		command = 1;
+		j = 0;
+		const char* name = $2;
+		const char* value = $3;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		cmdtbl[i][j] = "&";
+		j += 1;
+		i += 1;
+	};
+	| SETENV VARIABLE QUOTE arguments QUOTE {
+		command = 1;
+		j = 0;
+		const char* name = $2;
+		const char* value = string1;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		i += 1;
+	};
+	| SETENV VARIABLE arguments io_redirection {
+		command = 1;
+		j = 0;
+		const char* name = $2;
+		const char* value = string1;
+		const char* file = string2;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = value;
+		j += 1;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = file;
+		j += 1;
+		i += 1;
+	};
 
-void background() {
-	int child;
-	if ((child = fork()) == 0) {
-		do_it();
-	}
-	else {
-		if (string_equals(cmdtbl[i-1][j-1], "&")) {
-			wait(child);
-		}
-	}
-}
-
-void setenv1 () { 
-	if (string_equals(cmdtbl[i-1][j-1], "&")) {
-		cmdtbl[i-1][j-1] = "-";		
-		j -= 1;
-		background();
-	}
-	else if (string_equals(cmdtbl[i-1][j-2], "greater")) {
-		IO_redirect_greater(cmdtbl[i-1][j-1]);
-		setenv(cmdtbl[i-1][j-4], cmdtbl[i-1][j-3], 1);
-	}
-	else if (string_equals(cmdtbl[i-1][j-2], "less")) {
-		perror("Can't read from file with setenv");
-	}
-	else {
-		setenv(cmdtbl[i-1][j-2], cmdtbl[i-1][j-1], 1);
-	}
-}
-
-void ls() {
-	DIR *d;
+arguments:
+	VARIABLE {
+		string1 = $1;
+	};
+	| env_expansion;
+	| arguments VARIABLE {
+		const char* curr = $2;
+		strcat(string1, " ");
+		strcat(string1, curr);
+	};
+	| arguments DOLLAR OCURL VARIABLE ECURL {
+		const char* curr = getenv($4);
+		strcat(string1, " ");
+		strcat(string1, curr);
+	};
+	| STAR VARIABLE {
+		DIR *d;
 		struct dirent *dir;
 		d = opendir(".");
+		int works;
+		const char* strIn = "a";
+		int len;
+		const char* strOut;
+		strIn = $2;
+		len = strlen($2);
 		if(d) {
 			while ((dir = readdir(d)) != NULL) {
-				printf("%s\n", dir->d_name);
-			}
-			closedir(d);
-		}
-}
-
-void IO_redirect_greater(const char* f) {
-	int fd = open(f, O_RDWR | O_CREAT | O_EXCL, S_IREAD | S_IWRITE);
-	if (fd != -1) {
-		dup2(fd, 2);
-	}
-	else {
-		perror(f);
-	}
-	close(f);
-}
-
-void ls_dir() {
-	DIR *d;
-	struct dirent *dir;
-	d = opendir(".");
-	int works;
-	const char* strIn = "a";
-	int len;
-	char* strOut;
-	if (j >= 2) {
-		if (string_equals(cmdtbl[i-1][j-2], "greater")) {		
-			IO_redirect_greater(cmdtbl[i-1][j-1]);
-			strIn = cmdtbl[i-1][j-3];
-			len = strlen(cmdtbl[i-1][j-3]);
-			if(d) {
-				while ((dir = readdir(d)) != NULL) {
-					works = 1;
-					strOut = dir->d_name;
-					int i;
-					for (i = 0; i < len; i++) {
-						if (strIn[i] != strOut[i]) {
-							works = 0;
-							break;
-						}
+				works = 1;
+				strOut = dir->d_name;
+				int outLen = strlen(strOut);
+				int i;
+				for (i = len; i > 0; i--) {
+					if (strOut[outLen] != strIn[i]) {
+						works = 0;
+						break;
 					}
-					if (works == 1)
-						printf("%s\n", dir->d_name);
+					outLen--;
 				}
-			closedir(d);
+				if (works == 1) {
+					string1 = strOut;
+				}
 			}
-		}
-		else if (string_equals(cmdtbl[i-1][j-2], "less")) {
-			perror("Can't read from file in ls");
-		}
-	}
-	else {
-		strIn = cmdtbl[i-1][j-1];
-		len = strlen(cmdtbl[i-1][j-1]);
+		closedir(d);
+		}		
+	};
+	| VARIABLE STAR {
+		DIR *d;
+		struct dirent *dir;
+		d = opendir(".");
+		int works;
+		const char* strIn = "a";
+		int len;
+		const char* strOut;
+		strIn = $1;
+		len = strlen($1);
 		if(d) {
 			while ((dir = readdir(d)) != NULL) {
 				works = 1;
 				strOut = dir->d_name;
 				int i;
 				for (i = 0; i < len; i++) {
-					if (strIn[i] != strOut[i]) {
+					if (strOut[i] != strIn[i]) {
 						works = 0;
 						break;
 					}
 				}
-				if (works == 1)
-					printf("%s\n", dir->d_name);
+				if (works == 1) {
+					string1 = strOut;
+				}
+			}
+		closedir(d);
+		}		
+	};
+	| QUESTION VARIABLE {
+	DIR *d;
+		struct dirent *dir;
+		d = opendir(".");
+		int works;
+		const char* strIn = "a";
+		int len;
+		const char* strOut;
+		strIn = $2;
+		len = strlen($2);
+		if(d) {
+			while ((dir = readdir(d)) != NULL) {
+				works = 1;
+				strOut = dir->d_name;
+				int outLen = strlen(strOut);
+				int i;
+				for (i = len; i > 0; i--) {
+					if (strOut[outLen] != strIn[i]) {
+						works = 0;
+						break;
+					}
+					outLen--;
+				}
+				if (works == 1 && outLen == 1) {
+					string1 = strOut;
+				}
+			}
+		closedir(d);
+		}		
+	};
+	| VARIABLE QUESTION {
+		DIR *d;
+		struct dirent *dir;
+		d = opendir(".");
+		int works;
+		const char* strIn = "a";
+		int len;
+		const char* strOut;
+		strIn = $1;
+		len = strlen($1);
+		int outlen;
+		if(d) {
+			while ((dir = readdir(d)) != NULL) {
+				works = 1;
+				strOut = dir->d_name;
+				outlen = strlen(strOut);
+				if (outlen - len != 1) {
+					works = 0;
+				}
+				int i;
+				for (i = 0; i < len; i++) {
+					if (strOut[i] != strIn[i]) {
+						works = 0;
+						break;
+					}
+				}
+				if (works == 1) {
+					string1 = strOut;
+				}
 			}
 		closedir(d);
 		}
-	}	
-}
-
-int IO_redirect_less () {
-	int mypipe[2]; //pipe with two ends, read and write
-	pid_t p;
-	int status, wpid;
-	pipe(mypipe); //creates pipe
-	p = fork();
-	if (p < 0) {
-		perror("failed to fork");
-	}
-	else if (p == 0) {
-		int fd = open(cmdtbl[i-1][j-1], O_RDONLY);
-		dup2(fd, STDIN_FILENO);
-		close(fd);
-		const char* path = getenv("PWD");
-		char dest[100];
-		strcpy(dest, path);
-		strcat(dest, "/");
-		strcat(dest, cmdtbl[i-1][j-1]);
-		execl(dest, cmdtbl[i-1][j-1], 0);
-	}
-	else {
-		while ((wpid = wait(&status)) > 0) {
-			//
-		}
-	}
-	return 0;
-}
-
-void cd () {
-	if (j == 4) {
-		if (string_equals(cmdtbl[i-1][j-2], "greater")) {
-			IO_redirect_greater(cmdtbl[i-1][j-1]);
-			int a = chdir(cmdtbl[i-1][j-3]);
-			if (a < 0) {
-			perror("Not a directory");
-			}
-		}
-		else if (string_equals(cmdtbl[i-1][j-2], "less")) {
-			perror("Can't read from file with cd");
-		}
-	}
-	else if (j == 2) {
-		int a = chdir(cmdtbl[i-1][j-1]);
-		if (a < 0) {
-			perror("Not a directory");
-		}
-	}
-}
-
-void unsetenv1 () {
-	if (j >= 2) {
-		if (string_equals(cmdtbl[i-1][j-1], "&")) {
-			cmdtbl[i-1][j-1] = "-";		
-			j -= 1;
-			background();
-		}
-		else if (string_equals(cmdtbl[i-1][j-2], "greater")) {
-			IO_redirect_greater(cmdtbl[i-1][j-1]);
-			unsetenv(cmdtbl[i-1][j-3]);
-		}
-		else if (string_equals(cmdtbl[i-1][j-2], "less")) {
-			perror("Can't read from file with unsetenv");
-		}
-	}	
-	else {
-		unsetenv(cmdtbl[i-1][j-1]);
-	}
-}
-
-void printenv1 () {
-	if (j >= 2) {
-		if (string_equals(cmdtbl[i-1][j-2], "greater")) {
-			IO_redirect_greater(cmdtbl[i-1][j-1]);
-		}
-		else if (string_equals(cmdtbl[i-1][j-2], "less")) {
-			perror("Can't read from file with printenv");
-		}
-	}
-	printenv();
-}
-
-void do_it() {
-	switch (command) {
-		case 1: //setenv
-			setenv1();
-			break;
-		case 2: //printenv
-			printenv1();
-			break;
-		case 3: //unsetenv
-			unsetenv1();
-			break;
-		case 4:	//cd home
-			chdir(getenv("HOME"));
-			break;
-		case 5: //cd dir
-			cd();	
-			break;
-		case 6: //alias
-			break;
-		case 7: //unalias
-			break;
-		case 8: //ls
-			ls();		
-			break;
-		case 9: //ls dir
-			ls_dir();
-			break;
-		case 10: //bye
-			printf("\t bye!! \n"); 
-			exit(0);
-			break;
-		case 11: //read
-			IO_redirect_less();
-			break;
 	};
-}
 
-void processCommand() {
-	if (command < 12 && command > 0) {
-		do_it();
-	}
-	else 
-		execute_it();
-}
 
-int main(int argc, char* argv[], char **envp) {
-	char line[256];
-	printf("\t\tWelcome to the Grand Illusion\n");
-	shellInit();
-	size_t size = PATH_MAX;
-	char buf[PATH_MAX] = "";
-	while(1) {
-		getcwd(buf, size);
-		printf("%s>>", buf);
-		int c = getCommand();
-		switch (c) { 
-			//Case: BYE exit();
-			//case 0:  recover_from_errors();
-			case 1: //no errors
-				processCommand();
-				break;
-			
-		};
+
+env_expansion:
+	DOLLAR OCURL VARIABLE ECURL {
+		string1 = getenv($3);
+	};
+
+io_redirection:
+	LESS VARIABLE {
+		string2 = $2;
+		io = "less";
+	};
+	| GREATER VARIABLE {
+		string2 = $2;
+		io = "greater";
+	};
+	
+printenv_case:
+	PRINTENV {
+		command = 2;
+	};
+	| PRINTENV io_redirection {
+		command = 2;
+		j = 0;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = string2;
+		j += 1;
+		i += 1;
+	};
+unsetenv_case:
+	UNSETENV VARIABLE {
+		command = 3;
+		j = 0;
+		const char* name = $2;
+		cmdtbl[i][j] = name;
+		j += 1;
+		i += 1;
+	};
+	| UNSETENV VARIABLE AMPER {
+		command = 3;
+		j = 0;
+		const char* name = $2;
+		cmdtbl[i][j] = name;
+		j += 1;
+		cmdtbl[i][j] = "&";
+		j += 1;
+		i += 1;
+	};
+	| UNSETENV VARIABLE io_redirection {
+		command = 3;
+		j = 0;
+		cmdtbl[i][j] = $2;
+		j += 1;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = string2;
+		j += 1;
+		i += 1;
+	};
+cd_case:
+	CD {
+		command = 4;
+	};	
+	| CD arguments {
+		command = 5;
+		j = 0;
+		cmdtbl[i][j] = string1;
+		j += 1;
+		i += 1;
+	};
+	| CD arguments io_redirection {
+		command = 5;
+		j = 0;
+		cmdtbl[i][j] = string1;
+		j += 1;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = string2;
+		j += 1;
+		i += 1;
+	};
+		 
+alias_case:
+	ALIAS VARIABLE VARIABLE {/*
+		char *name = $2;
+		char *value = $3;
+		printf("\t alias !! \n");
+		push_linked_list(linklist, name, value);
 	}
-	return 0;
-}
+	| ALIAS {
+		print_linked_list(linklist);*/
+	};
+unalias_case:
+	UNALIAS VARIABLE { /*
+	char *name = $2;
+	printf("\t unalias !! \n");
+	remove_node_from_list(linklist, name);*/
+};
+ls_case: 
+	LS {
+		command = 8;
+	};
+	| LS arguments {
+		j = 0;
+		command = 9;
+		cmdtbl[i][j] = string1;
+		j += 1;
+		i += 1; 
+	};
+	| LS arguments io_redirection {
+		j = 0;
+		command = 9;
+		cmdtbl[i][j] = string1;
+		j += 1;
+		cmdtbl[i][j] = io;
+		j += 1;
+		cmdtbl[i][j] = string2;
+		j += 1;
+		i += 1; 
+	};
+		
+bye_case:
+	ENDF {
+		exit(0);
+	};
+	| BYE {
+		command = 10;		
+	};
+%%
