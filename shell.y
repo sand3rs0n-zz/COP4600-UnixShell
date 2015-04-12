@@ -217,6 +217,7 @@ variable_case:
 	} else {
 
 	printf("%s\n", expand);
+	system(expand);
 	/*
 		int mypipe[2]; //pipe with two ends, read and write
 		pid_t p;
